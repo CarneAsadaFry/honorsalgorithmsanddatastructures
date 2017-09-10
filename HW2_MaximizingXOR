@@ -1,0 +1,29 @@
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+
+public class Solution {
+
+    static int maxXor(int l, int r) {
+        int n = l ^ r;
+        int bitPos = 32 - Integer.numberOfLeadingZeros(n);
+        int ans = (1 << bitPos) - 1;
+        return ans;
+    }
+
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int res;
+        int _l;
+        _l = Integer.parseInt(in.nextLine());
+        
+        int _r;
+        _r = Integer.parseInt(in.nextLine());
+        
+        res = maxXor(_l, _r);
+        System.out.println(res);
+        
+    }
+}
