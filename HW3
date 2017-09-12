@@ -1,0 +1,37 @@
+package application;
+
+
+import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
+
+
+public class Main extends Application {
+	@Override
+	public void start(Stage primaryStage) {
+		int[] coords = new int[4];
+		for(int i = 0; i < 4; i++)
+			coords[i] = (int)(Math.random() * 571 + 15);
+		Circle c1 = new Circle(coords[0], coords[1], 15);
+		Circle c2 = new Circle(coords[2], coords[3], 15);
+		Line l1 = new Line(coords[0], coords[1], coords[2], coords[3]);
+		Pane root = new Pane();
+		Scene scene = new Scene(root, 600, 600);
+		
+		root.getChildren().addAll(c1, c2, l1);
+		primaryStage.setTitle("Plant did nothing wrong");
+		primaryStage.setScene(scene);
+		primaryStage.setResizable(false);
+		primaryStage.show();
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+}
