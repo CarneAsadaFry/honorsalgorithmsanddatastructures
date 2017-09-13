@@ -1,0 +1,39 @@
+package application;
+
+import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
+
+
+public class Main extends Application {
+	static int x = 200;
+	static int y = 200;
+	@Override
+	public void start(Stage primaryStage) {		
+		Pane root = new Pane();
+		
+		Scene scene = new Scene(root,400,400);
+		primaryStage.setScene(scene);
+		primaryStage.show();
+		root.requestFocus();
+	
+		root.setOnKeyPressed(e -> {
+			switch(e.getCode()) {
+				case UP: root.getChildren().add(new Line(x, y, x, y - 5)); y -= 5; break;
+				case DOWN: root.getChildren().add(new Line(x, y, x, y + 5)); y += 5; break;
+				case LEFT: root.getChildren().add(new Line(x, y, x - 5, y)); x -= 5; break;
+				case RIGHT: root.getChildren().add(new Line(x, y, x + 5, y)); x += 5; break;
+				default: break;
+			}
+		});
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+}
