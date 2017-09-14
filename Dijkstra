@@ -1,0 +1,92 @@
+//INPUT FORMAT:
+	//LINE 1: # OF NODES, # OF EDGES
+	//FOR EACH EDGE: START OF EDGE, END OF EDGE, LENGTH OF EDGE
+
+import java.util.*;
+public class Week001_Dijkstra {
+	
+	public static void dijkstra(int start){
+		PriorityQueue<Node> p = new PriorityQueue<>();
+		p.add(arr[start]);
+		arr[start].distance = 0;
+		while(!p.isEmpty()){
+			Node n = p.poll();
+			n.permanent = true;
+			for(int i = 0; i < n.connections.size(); i++){
+				int index = n.connections.get(i).node;
+				if(!arr[index].permanent && n.distance + n.connections.get(i).length < arr[index].distance){
+					arr[index].distance = n.distance + n.connections.get(i).length;
+					p.add(arr[index]);
+				}
+			}
+		}
+	}
+
+	static Node[] arr;
+	public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int t = in.nextInt();
+        int[][] ans = new int[t][];
+        for(int i = 0; i < t; i++){
+            int n = in.nextInt();
+            int m = in.nextInt();
+            arr = new Node[n];
+            ans[i] = new int[n - 1];
+            for(int j = 0; j < n; j++)
+            	arr[j] = new Node();
+            for(int j = 0; j < m; j++){
+                int x = in.nextInt();
+                int y = in.nextInt();
+                int r = in.nextInt();
+                arr[x - 1].connections.add(new Pair(r, y - 1));
+                arr[y - 1].connections.add(new Pair(r, x - 1));
+            }
+            int s = in.nextInt();
+            dijkstra(s - 1);
+            int ind = 0;
+            for(int j = 0; j < n; j++){
+            	if(j != s - 1){
+            		if(arr[j].distance == Integer.MAX_VALUE)
+            			arr[j].distance = -1;
+            		ans[i][ind++] = arr[j].distance;
+            	}
+            }	
+        }
+        for(int i = 0; i < t; i++){
+        	for(int j = 0; j < ans[i].length; j++){
+        		if(j == ans[i].length - 1)
+        			System.out.print(ans[i][j]);
+        		else
+        			System.out.print(ans[i][j] + " ");
+        	}
+        	System.out.println();
+        }
+    }
+	
+	static class Node implements Comparable<Node> {
+		Vector<Pair> connections;
+		boolean permanent;
+		int distance;
+		
+		public Node(){
+			connections = new Vector<>();
+			permanent = false;
+			distance = Integer.MAX_VALUE;
+		}
+
+		@Override
+		public int compareTo(Node other) {
+			return distance - other.distance;
+		}
+	}
+
+	static class Pair {
+		int length;
+		int node;
+		
+		public Pair(int l, int n){
+			length = l;
+			node = n;
+		}
+	}
+}
