@@ -3,7 +3,7 @@
 	//FOR EACH EDGE: START OF EDGE, END OF EDGE, LENGTH OF EDGE
 
 import java.util.*;
-public class Week001_Dijkstra {
+public class Dijkstra {
 	
 	public static void dijkstra(int start){
 		PriorityQueue<Node> p = new PriorityQueue<>();
