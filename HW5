@@ -1,0 +1,53 @@
+package application;
+
+import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
+
+
+public class Main extends Application {
+	@Override
+	public void start(Stage primaryStage) {
+		Circle c1 = new Circle(40, 40, 10);
+		Circle c2 = new Circle(120, 150, 10);
+		Line l = new Line(40, 40, 120, 150);
+		Text t = new Text(80, 95, (int)Math.sqrt((120 - 40) * (120 - 40) + (150 - 40) * (150 - 40)) + " px");
+		
+		c1.setOnMouseDragged(e -> {
+			c1.setCenterX(e.getX());
+			c1.setCenterY(e.getY());
+			l.setStartX(e.getX());
+			l.setStartY(e.getY());
+			t.setText("" + (int)Math.sqrt((c1.getCenterX() - c2.getCenterX()) * (c1.getCenterX() - c2.getCenterX()) + (c1.getCenterY() - c2.getCenterY()) * (c1.getCenterY() - c2.getCenterY())) + " px");
+			t.setX((c1.getCenterX() + c2.getCenterX()) / 2);
+			t.setY((c1.getCenterY() + c2.getCenterY()) / 2);
+		});
+		
+		c2.setOnMouseDragged(e -> {
+			c2.setCenterX(e.getX());
+			c2.setCenterY(e.getY());
+			l.setEndX(e.getX());
+			l.setEndY(e.getY());
+			t.setText("" + (int)Math.sqrt((c1.getCenterX() - c2.getCenterX()) * (c1.getCenterX() - c2.getCenterX()) + (c1.getCenterY() - c2.getCenterY()) * (c1.getCenterY() - c2.getCenterY())) + " px");
+			t.setX((c1.getCenterX() + c2.getCenterX()) / 2);
+			t.setY((c1.getCenterY() + c2.getCenterY()) / 2);
+		});
+		
+		Pane root = new Pane();
+		root.getChildren().addAll(c1, c2, l, t);
+		
+		Scene scene = new Scene(root, 400, 400);
+		primaryStage.setTitle("HW5");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+}
