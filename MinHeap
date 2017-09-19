@@ -1,0 +1,115 @@
+
+public class MinHeap<E> {
+	private E[] arr;
+	private int size;
+
+	public MinHeap() {
+		arr = (E[])new Object[10];
+		size = 0;
+	}
+
+
+	/**
+	 * Adds all values of a to the heap, re-sorts heap
+	 * @param a
+	 */
+	public void addAll(E... a) {
+		for(E e : a)
+			add(e);
+	}
+
+	/**
+	 * Adds e to the heap, re-sorts heap
+	 * @param e
+	 */
+	public void add(E e) {
+		if(size < arr.length) {
+			arr[size++] = e;
+		}else {
+			expand();
+			arr[size++] = e;
+		}
+		int a = size - 1, b = (a - 1) / 2;
+		while(a > 0 && ((Comparable)(arr[a])).compareTo(arr[b]) < 0) {
+			E temp = arr[b];
+			arr[b] = arr[a];
+			arr[a] = temp;
+			a = b;
+			b = (a - 1) / 2;
+		}
+
+	}
+
+	/**
+	 * 
+	 * @return size of the heap
+	 */
+	public int size() {
+		return size;
+	}
+
+	/**
+	 * gets element at index n
+	 * @param n
+	 * @return element at index n
+	 */
+	public E get(int n) {
+		if(n >= size)
+			throw new IndexOutOfBoundsException();
+		return arr[n];
+	}
+
+	/**
+	 * Removes element at index n, re-sorts heap
+	 * @param n
+	 * @return removed element
+	 */
+	public E remove(int n) {
+		if(n >= size)
+			throw new IndexOutOfBoundsException();
+		E removed = arr[n];
+		arr[n] = arr[--size];
+		int a = 2 * n + 1, b = 2 * n + 2;
+		while(2 * n + 1 < size) {
+			int min = (((Comparable)arr[a]).compareTo((Comparable)arr[b]) < 0) ? a : b;
+			if(((Comparable)arr[min]).compareTo((Comparable)arr[n]) < 0) {
+				E temp = arr[min];
+				arr[min] = arr[n];
+				arr[n] = temp;
+				a = 2 * min + 1;
+				b = 2 * min + 2;
+				n = min;
+			}else {
+				break;
+			}
+		}
+		return removed;
+	}
+
+	/**
+	 * Pops the top element
+	 * @return removed element
+	 */
+	public E pop() {
+		return remove(0);
+	}
+
+	/**
+	 * Checks if heap is empty
+	 * @return if heap is empty
+	 */
+	public boolean isEmpty() {
+		return size == 0;
+	}
+
+	private void expand() {
+		E[] temp = (E[])new Object[size];
+		for(int i = 0; i < size; i++) {
+			temp[i] = arr[i];
+		}
+		arr = (E[])new Object[size * 2];
+		for(int i = 0; i < size; i++) {
+			arr[i] = temp[i];
+		}		
+	}
+}
