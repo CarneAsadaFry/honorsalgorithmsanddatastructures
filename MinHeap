@@ -1,4 +1,3 @@
-
 public class MinHeap<E> {
 	private E[] arr;
 	private int size;
@@ -100,6 +99,15 @@ public class MinHeap<E> {
 	 */
 	public boolean isEmpty() {
 		return size == 0;
+	}
+	
+	public String toString(){
+		String s = "[";
+		for(int i = 0; i < size - 1; i++){
+			s += arr[i] + ", ";
+		}
+		s += arr[size - 1] + "]";
+		return s;
 	}
 
 	private void expand() {
