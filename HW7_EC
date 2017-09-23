@@ -1,0 +1,47 @@
+import java.util.*;
+
+public class HW7_EC {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int n = sc.nextInt();
+		int arr[] = new int[n];
+		
+		int maxDepth = 1, depthInd = 1, maxLength = 0, lengthInd = 0;
+		
+		arr[0] = 1;
+		sc.nextInt();
+		
+		//Creates array of net values, finds max depth
+		for(int i = 1; i < n; i++){
+			if(sc.nextInt() == 1)
+				arr[i] = arr[i - 1] + 1;
+			else
+				arr[i] = arr[i - 1] - 1;
+			
+			if(arr[i] > maxDepth){
+				maxDepth = arr[i];
+				depthInd = i + 1;
+			}
+		}
+		
+		//Finds longest continuous chain
+		for(int i = 0; i < n; i++){
+			for(int j = i + 1; j < n; j++){
+				if(arr[i] == 0 || arr[i] - 1 == arr[j]){
+					if(j - i + 1 > maxLength){
+						maxLength = j - i + 1;
+						lengthInd = i + 1;
+					}
+					break;
+				}
+			}
+		}
+		
+		System.out.println(maxDepth + " " + depthInd + " " + maxLength + " " + lengthInd);
+		
+		sc.close();
+
+	}
+
+}
