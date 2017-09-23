@@ -1,0 +1,28 @@
+import java.io.*;
+import java.util.*;
+
+public class HW7 {
+
+	public static void main(String[] args) throws IOException {
+		int[] arr = new int[26];
+		
+		File file = new File("Commitment.txt");
+		Scanner sc = new Scanner(file);
+		
+		while(sc.hasNextLine()){
+			String s = sc.nextLine();
+			s = s.toLowerCase();
+			for(int i = 0; i < s.length(); i++){
+				if(s.charAt(i) >= 'a' && s.charAt(i) <= 'z')
+					arr[s.charAt(i) - 'a']++;
+			}
+		}
+		
+		for(int i = 0; i < 26; i++){
+			System.out.println("Number of " + (char)('A' + i) + "'s: " + arr[i]);
+		}
+		
+		sc.close();
+	}
+
+}
