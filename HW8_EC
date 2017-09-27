@@ -1,0 +1,37 @@
+import java.io.*;
+import java.util.*;
+
+public class HW8_EC {
+
+	public static void main(String[] args) throws IOException {
+		File code = new File("src/HW8_EC.java");
+		File temp = new File("temp.txt");
+		Scanner sc = new Scanner(code);
+		PrintWriter out = new PrintWriter(temp);
+
+		while(sc.hasNextLine()) {
+			String s = sc.nextLine();
+			if(s.length() > 1 && s.charAt(s.length() - 1) == '{' && s.charAt(s.length() - 2) != '\t') {
+				String newLine = "";
+				for(int i = 0; i < s.length(); i++) {
+					if(s.charAt(i) == '\t')
+						newLine += '\t';
+					else
+						break;
+				}
+				out.println(s.substring(0, s.length() - 1));
+				out.println(newLine + "{");
+			} else {
+				out.println(s);
+			}
+		}
+
+		sc.close();
+		out.close();
+		
+		code.delete();
+		temp.renameTo(new File("src/HW8_EC.java"));
+
+	}
+
+}
