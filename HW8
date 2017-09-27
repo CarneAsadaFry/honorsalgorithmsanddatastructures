@@ -1,0 +1,19 @@
+import java.io.*;
+import java.util.*;
+
+public class HW8 {
+
+	public static void main(String[] args) throws IOException {
+		File file = new File("hw8.txt");
+		File temp = new File("temp.txt");
+		Scanner sc = new Scanner(file);
+		PrintWriter out = new PrintWriter(temp);
+		while(sc.hasNextLine())
+			out.println(sc.nextLine().replaceAll("a", "*"));
+		out.close();
+		sc.close();
+		file.delete();
+		temp.renameTo(new File("hw8.txt"));
+	}
+
+}
