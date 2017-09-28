@@ -1,0 +1,29 @@
+import java.io.*;
+
+public class HW9 {
+
+	public static void main(String[] args) throws IOException {
+		File file = new File("count.dat");
+		if(!file.exists()) {
+			DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
+			out.writeInt(1);
+			System.out.println("This program has been run 1 time.");
+			out.close();
+		} else {
+			File temp = new File("temp.txt");
+			DataOutputStream out = new DataOutputStream(new FileOutputStream(temp));
+			DataInputStream in = new DataInputStream(new FileInputStream(file));
+			
+			int n = in.readInt() + 1;
+			
+			out.writeInt(n);
+			System.out.println("This program has been run " + n + " times.");
+			out.close();
+			in.close();
+			
+			file.delete();
+			temp.renameTo(new File("count.dat"));
+		}
+	}
+
+}
