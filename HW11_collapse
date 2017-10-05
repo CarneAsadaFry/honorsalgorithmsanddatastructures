@@ -1,0 +1,19 @@
+public static void collapse(Stack<Integer> s){
+    Queue<Integer> q = new LinkedList<>();
+    
+    if(s.size() % 2 == 1)
+        q.offer(s.pop());
+    
+    while(!s.isEmpty()){
+        q.offer(s.pop() + s.pop());
+    }
+    while(!q.isEmpty()){
+        s.push(q.poll());
+    }
+    while(!s.isEmpty()){
+        q.offer(s.pop());
+    }
+    while(!q.isEmpty()){
+        s.push(q.poll());
+    }
+}
