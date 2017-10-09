@@ -1,0 +1,84 @@
+//INPUT FORMAT:
+//LINE 1: # OF GRAPHS
+//FOR EACH GRAPH:
+//	# OF NODES, # OF EDGES
+//	FOR EACH EDGE: START OF EDGE, END OF EDGE, LENGTH OF EDGE
+
+import java.util.*;
+public class HackerRankDijkstra {
+
+	public static int[] dijkstra(int s, int l){
+		int[] ans = new int[l];
+		PriorityQueue<Node> pq = new PriorityQueue<>();
+		for(int i = 0; i < l; i++)
+			ans[i] = Integer.MAX_VALUE;
+		boolean[] perm = new boolean[l];
+		pq.offer(new Node(s, 0));
+		ans[s] = 0;
+		while(!pq.isEmpty()){
+			int n = pq.poll().index;
+			perm[n] = true;
+			for(int i = 0; i < l; i++){
+				if(matrix[n][i] != 0 && !perm[i] && ans[n] + matrix[n][i] < ans[i]){
+					ans[i] = ans[n] + matrix[n][i];
+					pq.offer(new Node(i, ans[i]));
+				}
+			}
+		}
+		return ans;
+	}
+
+	static int[][] matrix;
+	public static void main(String[] args) {
+		Scanner in = new Scanner(System.in);
+		int t = in.nextInt();
+
+		for(int i = 0; i < t; i++){
+			int n = in.nextInt();
+			int m = in.nextInt();
+			matrix = new int[n][n];
+
+			for(int j = 0; j < m; j++){
+				int x = in.nextInt() - 1;
+				int y = in.nextInt() - 1;
+				int r = in.nextInt();
+				if(matrix[x][y] == 0){
+					matrix[x][y] = r;
+					matrix[y][x] = r;
+				}else{
+					matrix[x][y] = Math.min(matrix[x][y], r);
+					matrix[y][x] = Math.min(matrix[y][x], r);
+				}
+			}
+
+			int s = in.nextInt();
+			int[] ans = dijkstra(s - 1, n);
+
+			for(int j = 0; j < n; j++){
+				if(j != s - 1){
+					if(ans[j] == Integer.MAX_VALUE)
+						System.out.print(-1 + " ");
+					else
+						System.out.print(ans[j] + " ");
+				}
+			}
+			System.out.println();
+		}
+	}
+	static class Node implements Comparable<Node>{
+		int index;
+		int distance;
+
+		public Node(int i, int d){
+			index = i;
+			distance = d;
+		}
+
+		@Override
+		public int compareTo(Node other) {
+			return distance - other.distance;
+		}
+
+
+	}
+}
