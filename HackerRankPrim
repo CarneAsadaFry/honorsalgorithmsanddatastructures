@@ -1,0 +1,80 @@
+//INPUT FORMAT:
+//LINE 1: # OF NODES, # OF EDGES
+//FOR EACH EDGE: START OF EDGE, END OF EDGE, LENGTH OF EDGE
+
+import java.util.*;
+public class HackerRankPrim {
+
+	public static int prim(int s, int l){
+		int ans = 0;
+		PriorityQueue<Node> pq = new PriorityQueue<>();
+		boolean[] connected = new boolean[l];
+		pq.offer(new Node(s, 0));
+		
+		while(!pq.isEmpty()){
+			Node node = pq.poll();
+			int n = node.index;
+			
+			if(connected[n])
+				continue;
+			
+			ans += node.distance;
+			connected[n] = true;
+			
+			for(int i = 0; i < l; i++){
+				if(matrix[n][i] != -1 && !connected[i]){
+					pq.offer(new Node(i, matrix[n][i]));
+				}
+			}
+		}
+		return ans;
+	}
+
+	static int[][] matrix;
+	public static void main(String[] args) {
+		Scanner in = new Scanner(System.in);
+
+		int n = in.nextInt();
+		int m = in.nextInt();
+		matrix = new int[n][n];
+		
+		for(int i = 0; i < n; i++){
+			for(int j = 0; j < n; j++){
+				matrix[i][j] = -1;
+			}
+		}
+
+		for(int j = 0; j < m; j++){
+			int x = in.nextInt() - 1;
+			int y = in.nextInt() - 1;
+			int r = in.nextInt();
+			if(matrix[x][y] == -1){
+				matrix[x][y] = r;
+				matrix[y][x] = r;
+			}else{
+				matrix[x][y] = Math.min(matrix[x][y], r);
+				matrix[y][x] = Math.min(matrix[y][x], r);
+			}
+		}
+
+		int s = in.nextInt();
+		
+		System.out.println(prim(s - 1, n));
+	}
+	static class Node implements Comparable<Node>{
+		int index;
+		int distance;
+
+		public Node(int i, int d){
+			index = i;
+			distance = d;
+		}
+
+		@Override
+		public int compareTo(Node other) {
+			return distance - other.distance;
+		}
+
+
+	}
+}
