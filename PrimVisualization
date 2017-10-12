@@ -1,0 +1,151 @@
+package application;
+
+import java.util.*;
+
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
+public class Main extends Application {
+
+	//ODDS ONLY
+	private final int size = 45;
+	//Boxes are boxScale times smaller than the number of boxes
+	private final int boxScale = 2;
+	//Delay in seconds between creation of squares
+	private final double delay = .05;
+
+	@Override
+	public void start(Stage primaryStage) {
+
+		GridPane pane = new GridPane();
+		for(int i = 0; i < size; i++){
+			for(int j = 0; j < size; j++){
+				Rectangle rect = new Rectangle(size / boxScale, size / boxScale);
+				rect.setFill(Color.BLACK);
+				pane.add(rect, i, j);
+			}
+		}
+
+		int[][] adjMatrix = new int[size / 2 + 1][size / 2 + 1];
+		for(int i = 0; i <= size / 2; i++){
+			for(int j = 0; j <= size / 2; j++){
+				adjMatrix[i][j] = (int)(Math.random() * 100);
+			}
+		}
+
+		Timeline timeline = new Timeline();
+		Duration timepoint = Duration.ZERO ;
+		Duration pause = Duration.seconds(delay);
+
+		PriorityQueue<Node> pq = new PriorityQueue<>();
+		boolean[][] connected = new boolean[size / 2 + 1][size / 2 + 1];
+		pq.offer(new Node(size / 2 - 1, 1, 0, -1));
+		
+		int[] X = {-1, 1, 0, 0};
+		int[] Y = {0, 0, -1, 1};
+		Rectangle last = new Rectangle();
+		while(!pq.isEmpty()){
+			Node node = pq.poll();
+			int x = node.x;
+			int y = node.y;
+			int dir = node.dir;
+			
+			if(connected[x][y])
+				continue;
+			
+			connected[x][y] = true;
+			
+			for(int i = 0; i < 4; i++){
+				int newX = x + X[i];
+				int newY = y + Y[i];
+				if(newX >= 0 && newY >= 0 && newX < size / 2 && newY < size / 2 && !connected[newX][newY]){
+					pq.offer(new Node(newX, newY, adjMatrix[newX][newY], i));
+				}
+			}
+				
+			Label c1 = new Label(x + "");
+			Label c2 = new Label(y + "");
+			
+			//X + 1
+			if(dir == 0){
+				KeyFrame keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 1) * size + (Integer.parseInt(c1.getText()) * 2 + 2))).setFill(Color.RED));
+				timeline.getKeyFrames().add(keyFrame);
+				timepoint = timepoint.add(pause);
+				keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 1) * size + (Integer.parseInt(c1.getText()) * 2 + 1))).setFill(Color.RED));
+				timeline.getKeyFrames().add(keyFrame);
+				keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 1) * size + (Integer.parseInt(c1.getText()) * 2 + 2))).setFill(Color.WHITE));
+				timeline.getKeyFrames().add(keyFrame);
+			//X - 1
+			}else if(dir == 1){
+				KeyFrame keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 1) * size + (Integer.parseInt(c1.getText()) * 2))).setFill(Color.RED));
+				timeline.getKeyFrames().add(keyFrame);
+				timepoint = timepoint.add(pause);
+				keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 1) * size + (Integer.parseInt(c1.getText()) * 2 + 1))).setFill(Color.RED));
+				timeline.getKeyFrames().add(keyFrame);
+				keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 1) * size + (Integer.parseInt(c1.getText()) * 2))).setFill(Color.WHITE));
+				timeline.getKeyFrames().add(keyFrame);
+			//Y + 1
+			}else if(dir == 2){
+				KeyFrame keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 2) * size + (Integer.parseInt(c1.getText()) * 2 + 1))).setFill(Color.RED));
+				timeline.getKeyFrames().add(keyFrame);
+				timepoint = timepoint.add(pause);
+				keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 1) * size + (Integer.parseInt(c1.getText()) * 2 + 1))).setFill(Color.RED));
+				timeline.getKeyFrames().add(keyFrame);
+				keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 2) * size + (Integer.parseInt(c1.getText()) * 2 + 1))).setFill(Color.WHITE));
+				timeline.getKeyFrames().add(keyFrame);
+			//Y - 1
+			}else if(dir == 3){
+				KeyFrame keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2) * size + (Integer.parseInt(c1.getText()) * 2 + 1))).setFill(Color.RED));
+				timeline.getKeyFrames().add(keyFrame);
+				timepoint = timepoint.add(pause);
+				keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 1) * size + (Integer.parseInt(c1.getText()) * 2 + 1))).setFill(Color.RED));
+				timeline.getKeyFrames().add(keyFrame);
+				keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2) * size + (Integer.parseInt(c1.getText()) * 2 + 1))).setFill(Color.WHITE));
+				timeline.getKeyFrames().add(keyFrame);
+			}
+			timepoint = timepoint.add(pause);
+			KeyFrame keyFrame = new KeyFrame(timepoint, e -> ((Rectangle)pane.getChildren().get((Integer.parseInt(c2.getText()) * 2 + 1) * size + (Integer.parseInt(c1.getText()) * 2 + 1))).setFill(Color.WHITE));
+			timeline.getKeyFrames().add(keyFrame);
+		}
+
+		Scene scene = new Scene(pane);
+		primaryStage.setScene(scene);
+		primaryStage.show();
+
+		timeline.play();
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+
+	static class Node implements Comparable<Node>{
+		int x;
+		int y;
+		int distance;
+		int dir;
+
+		public Node(int x, int y, int dist, int dir){
+			this.x = x;
+			this.y = y;
+			distance = dist;
+			this.dir = dir;
+		}
+
+		@Override
+		public int compareTo(Node other) {
+			return distance - other.distance;
+		}
+
+
+	}
+}
