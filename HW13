@@ -1,0 +1,31 @@
+import java.util.*;
+
+public class HW13 {
+
+	public static void main(String[] args) {
+		Map<Integer, Integer> map = new HashMap<>();
+		Scanner sc = new Scanner(System.in);
+		int max = 1;
+		
+		while(sc.hasNextInt()){
+			int n = sc.nextInt();
+			if(n == 0)
+				break;
+			if(map.containsKey(n)){
+				if(map.get(n) + 1 > max)
+					max = map.get(n) + 1;
+				map.put(n, map.get(n) + 1);
+			}else{
+				map.put(n, 1);
+			}
+		}
+		
+		for(int i : map.keySet()){
+			if(map.get(i) == max)
+				System.out.print(i + " ");
+		}
+		
+		sc.close();
+	}
+
+}
