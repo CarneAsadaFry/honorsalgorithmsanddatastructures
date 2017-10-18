@@ -1,0 +1,85 @@
+import java.util.*;
+
+public class PlayGame {
+
+    static int playGame(String s, int[] arr) {
+    	//Find size of each array
+    	int rbCount = 0, gwCount = 0;
+    	for(int i = 0; i < s.length(); i++){
+    		if(s.charAt(i) == 'R' || s.charAt(i) == 'B')
+    			rbCount++;
+    		else
+    			gwCount++;
+    	}
+    	//Test for empty array
+    	if(rbCount == 0 || gwCount == 0)
+    		return 1;
+    	//Fill arrays with values
+    	int m = Math.max(rbCount, gwCount);
+    	int n = Math.min(rbCount, gwCount);
+    	int ans = n;
+    	int[] add = new int[m];
+    	int[] base = new int[n];
+    	int c1 = 0, c2 = 0;
+    	for(int i = 0; i < s.length(); i++){
+    		if(s.charAt(i) == 'R' || s.charAt(i) == 'B'){
+    			if(rbCount > gwCount)
+    				add[c1++] = arr[i];
+    			else
+    				base[c1++] = arr[i];
+    		}else{
+    			if(rbCount <= gwCount)
+    				add[c2++] = arr[i];
+    			else
+    				base[c2++] = arr[i];
+    		}
+    	}
+    	//Sort arrays
+    	Arrays.sort(add);
+    	Arrays.sort(base);
+    	//Deal with edges
+    	if(m > n){
+    		if(add[0] < base[0]){
+        		ans++;
+        	}
+    		if(add[m - 1] > base[n - 1]){
+        		ans++;
+        	}
+    	}else if(add[0] < base[0]){
+    		ans++;
+    	}else if(add[m - 1] > base[n - 1]){
+    		ans++;
+    	}
+    	//Find middle values
+    	boolean lookingForAdd = false;
+    	c1 = 0;
+    	c2 = 0;
+    	while(c1 < m && c2 < n){
+    		if(add[c1] < base[c2]){
+    			if(lookingForAdd)
+    				ans++;
+    			lookingForAdd = false;
+    			c1++;
+    		}else{
+    			lookingForAdd = true;
+    			c2++;
+    		}
+    	}
+    	//Return answer
+    	return ans;
+    }
+
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int n = in.nextInt();
+        String s = in.next();
+        int[] arr = new int[n];
+        for(int arr_i = 0; arr_i < n; arr_i++){
+            arr[arr_i] = in.nextInt();
+        }
+        int result = playGame(s, arr);
+        System.out.println(result);
+        in.close();
+    }
+    
+}
