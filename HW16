@@ -1,0 +1,56 @@
+package application;
+	
+import javafx.animation.PathTransition;
+import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Arc;
+import javafx.scene.shape.Circle;
+
+
+public class Main extends Application {
+	@Override
+	public void start(Stage primaryStage) {
+		Pane root = new Pane();
+		
+		Arc a = new Arc(200, 200, 150, 75, 180, 180);
+		a.setFill(Color.TRANSPARENT);
+		a.setStroke(Color.BLACK);
+		a.setStrokeWidth(3);
+		
+		Circle c = new Circle(200, 200, 15);
+		c.setFill(Color.CHARTREUSE);
+		c.setStroke(Color.TRANSPARENT);
+		
+		root.getChildren().addAll(a, c);
+		
+		PathTransition p = new PathTransition();
+		p.setNode(c);
+		p.setPath(a);
+		p.setCycleCount((int)Double.POSITIVE_INFINITY);
+		p.setAutoReverse(true);
+		p.setDuration(Duration.seconds(.75));
+		p.play();
+		
+		root.setOnMousePressed(e -> {
+			p.pause();
+		});
+		
+		root.setOnMouseReleased(e -> {
+			p.play();
+		});
+		
+		Scene scene = new Scene(root, 400, 400);
+		primaryStage.setTitle("HW16");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
+	
+	public static void main(String[] args) {
+		launch(args);
+	}
+}
