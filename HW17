@@ -1,0 +1,84 @@
+package application;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+
+
+public class Main extends Application {
+	Timeline animation;
+	int speed = 5;
+	@Override
+	public void start(Stage primaryStage) {
+		Pane root = new Pane();
+		Scene scene = new Scene(root,400,400);
+		Rectangle rect = new Rectangle(0, 180, 50, 10);
+		rect.setFill(Color.BLUEVIOLET);
+		Polygon poly = new Polygon();
+		ObservableList<Double> list = poly.getPoints();
+		list.addAll(10.0, 180.0, 20.0, 170.0, 30.0, 170.0, 40.0, 180.0);
+		poly.setFill(Color.CADETBLUE);
+		Circle c1 = new Circle(10, 190, 5);
+		Circle c2 = new Circle(40, 190, 5);
+
+		animation = new Timeline(new KeyFrame(Duration.millis(19), e -> {
+			poly.setLayoutX(poly.getLayoutX() + speed);
+			rect.setLayoutX(rect.getLayoutX() + speed);
+			c1.setCenterX(c1.getCenterX() + speed);
+			c2.setCenterX(c2.getCenterX() + speed);
+
+			if(rect.getLayoutX() >= 400) {
+				poly.setLayoutX(-50);
+				rect.setLayoutX(-50);
+				c1.setCenterX(-40);
+				c2.setCenterX(-10);
+			}
+		}));
+
+		animation.setCycleCount(Timeline.INDEFINITE);
+		animation.play();
+		
+		scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
+			boolean running = true;
+
+			@Override
+			public void handle(KeyEvent e) {				
+				switch(e.getCode()) {
+				case UP: speed++; break;
+				case DOWN: if(speed > 1) speed--; break;
+				default: if(running) {
+							animation.pause();
+							running = false;
+						}else {
+							animation.play();
+							running = true;
+						}
+				}
+			}
+		});
+
+		root.getChildren().addAll(rect, poly, c1, c2);
+
+		primaryStage.setTitle("vrrooooom");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+
+}
