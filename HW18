@@ -1,0 +1,93 @@
+package application;
+
+import java.util.ArrayList;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+
+
+public class Main extends Application {
+
+	boolean trapped = false;
+	boolean[][] vis = new boolean[17][17];
+	int[] X = {-1, 1, 0, 0};
+	int[] Y = {0, 0, -1, 1};
+	int x = 8, y = 8;
+
+	@Override
+	public void start(Stage primaryStage) {
+		StackPane root = new StackPane();
+		Pane line = new Pane();
+		GridPane squares = new GridPane();
+		root.getChildren().addAll(squares, line);
+		Scene scene = new Scene(root, 486, 486);
+		for(int i = 0; i < 16; i++){
+			for(int j = 0; j < 16; j++){
+				Rectangle temp = new Rectangle(30, 30);
+				temp.setFill(Color.TRANSPARENT);
+				temp.setStroke(Color.BLACK);
+				squares.add(temp, i, j);
+			}
+		}
+
+		Timeline animation = new Timeline(new KeyFrame(Duration.seconds(.05), e -> {		
+			ArrayList<Integer> valX = new ArrayList<>();
+			ArrayList<Integer> valY = new ArrayList<>();
+
+			for(int i = 0; i < 4; i++){
+				int newX = x + X[i];
+				int newY = y + Y[i];
+				if(newX >= 0 && newX <= 16 && newY >= 0 && newY <= 16 && !vis[newX][newY]){
+					valX.add(X[i]);
+					valY.add(Y[i]);
+				}
+			}
+
+			if(valX.isEmpty()){
+				trapped = true;
+				return;
+			}
+			
+			int rand = (int)(Math.random() * valX.size());
+			int newX = x + valX.get(rand);
+			int newY = y + valY.get(rand);
+
+			if(newX >= 0 && newX <= 16 && newY >= 0 && newY <= 16 && !vis[newX][newY]){
+				Line temp = new Line(x * 31, y * 31, newX * 31, newY * 31);
+				temp.setStroke(Color.RED);
+				temp.setStrokeWidth(4);
+				line.getChildren().add(temp);
+				vis[x][y] = true;
+				x = newX;
+				y = newY;
+			}
+
+		}));
+
+		animation.setCycleCount(Timeline.INDEFINITE);
+		animation.play();
+		
+		if(trapped)
+			animation.pause();
+
+		primaryStage.setTitle("HW18");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+		primaryStage.setResizable(false);
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+}
