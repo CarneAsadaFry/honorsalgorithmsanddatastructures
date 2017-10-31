@@ -1,0 +1,94 @@
+package application;
+
+import java.util.ArrayList;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+
+
+public class Main extends Application {
+	int width = 800, height = 600;
+	@Override
+	public void start(Stage primaryStage) {
+		Pane root = new Pane();
+		Ball ball = new Ball(Math.random() * (width - 40) + 20, Math.random() * (height - 40) + 20, Math.random() * 11 + 10);
+		for(int i = 0; i < 0; i++) {
+			root.getChildren().add(new Ball(Math.random() * (width - 40) + 20, Math.random() * (height - 40) + 20, Math.random() * 11 + 10));
+		}
+		
+		Timeline animation = new Timeline(new KeyFrame(Duration.seconds(.005), e -> {
+			for(int i = 0; i < root.getChildren().size(); i++)
+				((Ball)root.getChildren().get(i)).move();
+			for(int i = 0; i < root.getChildren().size(); i++) {
+				for(int j = 0; j < root.getChildren().size(); j++) {
+					Ball b1 = (Ball)root.getChildren().get(i);
+					Ball b2 = (Ball)root.getChildren().get(j);
+					if(b1 != b2 && Math.abs(b1.getCenterX() - b2.getCenterX()) <= b1.getRadius() + b2.getRadius() && Math.abs(b1.getCenterY() - b2.getCenterY()) <= b1.getRadius() + b2.getRadius()) {
+						if(b1.getRadius() < b2.getRadius()) {
+							root.getChildren().remove(b1);
+							b2.setRadius(b2.getRadius() + b1.getRadius() / 2);
+						} else {
+							root.getChildren().remove(b2);
+							b1.setRadius(b1.getRadius() + b2.getRadius() / 2);
+						}
+					}
+				}
+			}
+		}));
+		
+		animation.setCycleCount(Timeline.INDEFINITE);
+		animation.play();
+		
+		Scene scene = new Scene(root, width, height);
+		
+		scene.setOnKeyPressed(e -> {
+			switch(e.getCode()) {
+			case UP: 
+				root.getChildren().add(new Ball(Math.random() * (width - 40) + 20, Math.random() * (height - 40) + 20, Math.random() * 11 + 10));
+				break;
+			case DOWN: 
+				if(!root.getChildren().isEmpty())
+					root.getChildren().remove(root.getChildren().size() - 1);
+				break;
+			}
+		});
+		
+		primaryStage.setTitle("Chongo");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+	
+	class Ball extends Circle {
+		private int dx, dy;
+		
+		Ball(double centerX, double centerY, double radius){
+			super(centerX, centerY, radius, Color.color(Math.random(), Math.random(), Math.random(), Math.random() * .5 + .5));
+			dx = Math.random() > .5 ? -1 : 1;
+			dy = Math.random() > .5 ? -1 : 1;
+		}
+		
+		void move() {
+			setCenterX(getCenterX() + dx);
+			setCenterY(getCenterY() + dy);
+			if(getCenterX() <= getRadius())
+				dx = -dx;
+			if(getCenterX() + getRadius() >= width)
+				dx = -dx;
+			if(getCenterY() <= getRadius())
+				dy = -dy;
+			if(getCenterY() + getRadius() >= height)
+				dy = -dy;
+		}
+	}
+}
