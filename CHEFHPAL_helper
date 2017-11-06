@@ -1,0 +1,62 @@
+import java.util.*;
+
+public class lovelycomputerprogram {
+
+	public static void findPerms(int length){
+		for(long i = 0; i < (1L << length); i++){
+			boolean[] pal = new boolean[length];
+			for(int j = 0; j < length; j++){
+				if((i & (1 << j)) != 0)
+					pal[j] = true;
+			}
+			int locMax = 0;
+			for(int j = 0; j <= 2 * length; j++){
+				int temp = 0;
+				if(j % 2 == 0){
+					int s = j / 2;
+					int left = s - 1, right = s;
+					while(left >= 0 && right < length && pal[left] == pal[right]){
+						temp += 2;
+						left--;
+						right++;
+					}
+				}else{
+					int s = j / 2;
+					temp++;
+					int left = s - 1, right = s + 1;
+					while(left >= 0 && right < length && pal[left] == pal[right]){
+						temp += 2;
+						left--;
+						right++;
+					}
+				}
+				if(temp > locMax)
+					locMax = temp;
+			}
+			if(locMax < min){
+				pals.clear();
+				pals.add(pal);
+				min = locMax;
+			}else if(locMax == min){
+				pals.add(pal);
+			}
+		}
+	}
+	
+	static int min = Integer.MAX_VALUE;
+	static ArrayList<boolean[]> pals = new ArrayList<>();
+	public static void main(String[] args) {
+		findPerms(31);
+		for(int i = 0; i < pals.size(); i++){
+			System.out.print(min + " ");
+			for(boolean b : pals.get(i)){
+				if(b)
+					System.out.print("b");
+				else
+					System.out.print("a");
+			}
+			System.out.println();
+		}
+	}
+
+}
