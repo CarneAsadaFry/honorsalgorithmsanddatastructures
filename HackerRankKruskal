@@ -1,0 +1,73 @@
+import java.util.*;
+
+public class Solution {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int n = sc.nextInt(), m = sc.nextInt();
+		
+		Node[] set = new Node[n];
+		for(int i = 0; i < n; i++){
+			set[i] = new Node();
+		}
+		
+		PriorityQueue<Edge> pq = new PriorityQueue<>();
+		for(int i = 0; i < m; i++){
+			pq.add(new Edge(sc.nextInt() - 1, sc.nextInt() - 1, sc.nextInt()));
+		}
+		
+		int MST = 0;
+		while(!pq.isEmpty()){
+			Edge temp = pq.poll();
+			Node r1 = set[temp.u].findRoot(), r2 = set[temp.v].findRoot();
+			if(r1 != r2){
+				if(r1.rank > r2.rank){
+					r1.rank += r2.rank;
+					r2.parent = r1;
+				}else{
+					r2.rank += r1.rank;
+					r1.parent = r2;
+				}
+				MST += temp.r;
+			}
+		}
+		
+		System.out.println(MST);
+	}
+	
+	static class Node {
+		int rank;
+		Node parent;
+		
+		public Node(){
+			rank = 1;
+			parent = this;
+		}
+		
+		public Node findRoot(){
+			if(this == parent)
+				return this;
+			parent = parent.findRoot();
+			return parent;
+		}
+	}
+	
+	static class Edge implements Comparable<Edge>{
+		int u;
+		int v;
+		int r;
+		
+		public Edge(int u, int v, int r){
+			this.u = u;
+			this.v = v;
+			this.r = r;
+		}
+
+		@Override
+		public int compareTo(Edge o) {
+			return r - o.r;
+		}
+		
+	}
+
+}
