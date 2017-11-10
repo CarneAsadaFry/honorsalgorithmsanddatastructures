@@ -1,0 +1,114 @@
+//Nathan Tausik
+//The Buckley School
+//Senior-#
+import java.util.*;
+public class ACSL1tausik {
+	
+	public static void mapInit(HashMap<Character, Integer> val){
+		val.put('2', 2);
+		val.put('3', 3);
+		val.put('4', 4);
+		val.put('5', 5);
+		val.put('6', 6);
+		val.put('7', 7);
+		val.put('8', 8);
+		val.put('9', 9);
+		val.put('T', 10);
+		val.put('J', 11);
+		val.put('Q', 12);
+		val.put('K', 13);
+		val.put('A', 14);
+	}
+
+	public static void main(String[] args) {
+		HashMap<Character, Integer> val = new HashMap<>();
+		mapInit(val);
+		int[] hand1O = new int[5];
+		int[] hand2O = new int[5];
+		Scanner sc = new Scanner(System.in);
+		
+		System.out.print("1. ");
+		StringTokenizer st = new StringTokenizer(sc.nextLine());
+		for(int i = 0; i < 5; i++){
+			hand1O[i] = val.get(st.nextToken().charAt(0));
+		}
+		for(int i = 0; i < 5; i++){
+			hand2O[i] = val.get(st.nextToken().charAt(0));
+		}
+		
+		for(int t = 1; t <= 5; t++){
+			int[] hand1 = new int[5];
+			int[] hand2 = new int[5];
+			for(int i = 0; i < 5; i++){
+				hand1[i] = hand1O[i];
+				hand2[i] = hand2O[i];
+			}
+			System.out.print((t + 1) + ". ");
+			st = new StringTokenizer(sc.nextLine());
+			int points = Integer.parseInt(st.nextToken());
+			Queue<Integer> deck = new LinkedList<>();
+			for(int i = 0; i < 10; i++){
+				deck.offer(val.get(st.nextToken().charAt(0)));
+			}
+			boolean p1Turn = true;
+			while(points < 100){
+				if(p1Turn){
+					Arrays.sort(hand1);
+					int value = hand1[2];
+					if(!deck.isEmpty())
+						hand1[2] = deck.poll();
+					else
+						hand1[2] = -1;	
+					if(value == 9){
+						//do nothing
+					}else if(value == 10){
+						if(points >= 34 && points - 10 <= 33 || points >= 56 && points - 10 <= 55 || points >= 78 && points - 10 <= 77)
+							points += 5;
+						points -= 10;
+					}else if(value == 7){
+						if(points + 7 > 99)
+							points++;
+						else{
+							if(points <= 33 && points + 7 >= 34 || points <= 55 && points + 7 >= 56 || points <= 77 && points + 7 >= 78)
+								points += 5;
+							points += 7;
+						}
+					}else{
+						if(points <= 33 && value + points >= 34 || points <= 55 && value + points >= 56 || points <= 77 && value + points >= 78)
+							points += 5;
+						points += value;
+					}
+				}else{
+					Arrays.sort(hand2);
+					int value = hand2[2];
+					if(!deck.isEmpty())
+						hand2[2] = deck.poll();
+					else
+						hand2[2] = -1;
+					if(value == 9){
+						//do nothing
+					}else if(value == 10){
+						if(points >= 34 && points - 10 <= 33 || points >= 56 && points - 10 <= 55 || points >= 78 && points - 10 <= 77)
+							points += 5;
+						points -= 10;
+					}else if(value == 7){
+						if(points + 7 > 99)
+							points++;
+						else{
+							if(points <= 33 && points + 7 >= 34 || points <= 55 && points + 7 >= 56 || points <= 77 && points + 7 >= 78)
+								points += 5;
+							points += 7;
+						}
+					}else{
+						if(points <= 33 && value + points >= 34 || points <= 55 && value + points >= 56 || points <= 77 && value + points >= 78)
+							points += 5;
+						points += value;
+					}
+				}
+				p1Turn = !p1Turn;
+			}
+			System.out.println(t + ". " + points + ", Player #" + ((p1Turn) ? "1" : "2"));
+		}
+	}
+
+}
