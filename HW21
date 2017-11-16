@@ -1,0 +1,63 @@
+package application;
+
+import javafx.application.Application;
+import javafx.geometry.Point2D;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Line;
+
+
+public class Main extends Application {
+	static Pane pane;
+	@Override
+	public void start(Stage primaryStage) {
+		VBox root = new VBox();
+		pane = new Pane();
+		pane.setMinHeight(975);
+		TextField tf = new TextField();
+		root.getChildren().addAll(pane, tf);
+		
+		tf.setOnAction(e -> {
+			pane.getChildren().clear();
+			int depth = Integer.parseInt(tf.getText());
+			hLine(400, 500, 1000, 500, 300, depth);
+		});
+		
+		Scene scene = new Scene(root, 1400, 1000);
+		primaryStage.setScene(scene);
+		primaryStage.setTitle("HW21");
+		primaryStage.show();
+	}
+	
+	public void hLine(double xA, double yA, double xB, double yB, double length, int depth){
+		if(depth <= 0)
+			return;
+		
+		length /= 1.61803398875;
+		Line line = new Line(xA, yA, xB, yB);
+		pane.getChildren().add(line);
+		
+		vLine(xA, yA - length, xA, yA + length, length, depth - 1);
+		vLine(xB, yB - length, xB, yB + length, length, depth - 1);
+	}
+	
+	public void vLine(double xA, double yA, double xB, double yB, double length, int depth){
+		if(depth <= 0)
+			return;
+		
+		length /= 1.61803398875;
+		Line line = new Line(xA, yA, xB, yB);
+		pane.getChildren().add(line);
+		
+		hLine(xA - length, yA, xA + length, yA, length, depth - 1);
+		hLine(xB - length, yB, xB + length, yB, length, depth - 1);
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+}
