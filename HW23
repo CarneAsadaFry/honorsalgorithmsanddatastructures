@@ -1,0 +1,85 @@
+import java.util.*;
+public class HW23 {
+	static final int SIZE = 8;
+	static int[] X = {-2, -2, -1, -1, 1, 1, 2, 2};
+	static int[] Y = {-1, 1, -2, 2, -2, 2, -1, 1};
+	public static boolean solve(Node start, Node end) {
+		Queue<Node> q = new LinkedList<>();
+		q.offer(start);
+		board[start.x][start.y] = 1;
+		while(!q.isEmpty()) {
+			Node n = q.poll();
+			if(n.x == end.x && n.y == end.y) {
+				String s = printPath(end.x, end.y);
+				System.out.println(s.substring(0, s.length() - 5)); 
+				return true;
+			}
+			for(int i = 0; i < 8; i++) {
+				int newX = n.x + X[i];
+				int newY = n.y + Y[i];
+				if(newX >= 0 && newX < SIZE && newY >= 0 && newY < SIZE && board[newX][newY] == 0) {
+					board[newX][newY] = board[n.x][n.y] + 1;
+					q.offer(new Node(newX, newY));
+				}
+			}
+		}
+		return false;
+	}
+	
+	static int ans[][] = new int[SIZE][SIZE];
+	public static String printPath(int x, int y) {
+		String s = "";
+		ans[x][y] = board[x][y];
+		if(board[x][y] == 1) {
+			printBoard();
+			s += "(" + x + ", " + y + ") --> ";
+			return s;
+		}
+		for(int i = 0; i < 8; i++) {
+			int newX = x + X[i];
+			int newY = y + Y[i];
+			if(newX >= 0 && newX < SIZE && newY >= 0 && newY < SIZE && board[newX][newY] == board[x][y] - 1) {
+				s += printPath(newX, newY);
+				s += "(" + x + ", " + y + ") --> ";
+				return s;
+			}
+		}
+		return s;
+	}
+	
+	public static void printBoard() {
+		for(int[] a : ans) {
+			for(int i : a) {
+				if(i == 0)
+					System.out.print("X ");
+				else
+					System.out.print((i - 1) + " ");
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+	
+	static int[][] board = new int[SIZE][SIZE];
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		
+		Node start = new Node(sc.nextInt(), sc.nextInt());
+		Node end = new Node(sc.nextInt(), sc.nextInt());
+		
+		if(!solve(start, end))
+			System.out.println("Unsolvable");
+		sc.close();
+	}
+	
+	static class Node {
+		int x;
+		int y;
+		
+		public Node(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
+
+}
