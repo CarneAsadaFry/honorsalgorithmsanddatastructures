@@ -1,0 +1,76 @@
+package application;
+
+import java.util.Arrays;
+
+import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+
+
+public class Main extends Application {
+	int[] val = new int[50];
+	Rectangle[] rect = new Rectangle[50];
+	int n = 25;
+	Color def = Color.CORNFLOWERBLUE;
+	Color on = Color.INDIANRED;
+	Color ans = Color.LAWNGREEN;
+	final int FIND = 14;
+	@Override
+	public void start(Stage primaryStage) {
+		HBox root = new HBox();
+		for(int i = 0; i < 50; i++) {
+			val[i] = (int)(Math.random() * 100);
+			rect[i] = new Rectangle(20, 20);
+			rect[i].setFill(def);
+			rect[i].setStroke(Color.BLACK);
+		}
+		Arrays.sort(val);
+		for(int i = 0; i < 50; i++) {
+			StackPane stp = new StackPane();
+			stp.getChildren().addAll(rect[i], new Label(val[i] + ""));
+			root.getChildren().add(stp);
+		}
+
+		new Thread(() -> {
+			int l = 0, r = 49;
+			rect[0].setFill(on);
+			rect[49].setFill(on);
+			try {
+				Thread.sleep(1000);
+			}catch(InterruptedException e) {}
+			while(l <= r) {
+				int n = (l + r) / 2;
+				if(val[n] == FIND)
+					rect[n].setFill(ans);
+				else if(val[n] > FIND) {
+					rect[r].setFill(def);
+					r = n - 1;
+					rect[r].setFill(on);
+				}else {
+					rect[l].setFill(def);
+					l = n + 1;
+					rect[l].setFill(on);
+				}
+				try {
+					Thread.sleep(1000);
+				}catch(InterruptedException e) {}
+			}
+		}).start();
+
+
+		Scene scene = new Scene(root);
+		primaryStage.setTitle("HW27");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+}
