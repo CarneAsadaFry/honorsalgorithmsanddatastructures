@@ -1,174 +1,225 @@
 package org.usfirst.frc.team1661.robot;
+/**
+ * @TODO- Beginning of season
+ * Download FRC Update Suite
+ * Firmware, imaging, etc done in RIO configurer- Open Internet Explorer when connected to RIO, go to (http://roborio-1661-frc.local)
+ * Re-image roboRIO
+ * Check for firmware updates
+ * Check for new CTRE software (CTRE Phoenix)
+ * Check for CANTalon firmware updates (C:\Users\Public\Public Documents\FRC\TalonSrx-Application-NEWEST_VERSION)
+ * Look at javadocs, fix any updates to wpilib
+ */
 
+/**
+ * Imports
+ */
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.drive.MecanumDrive;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.*;
-import com.ctre.CANTalon;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+/**
+ * @author Nate Tausik
+ * Encoded Mecanum Drive with PID
+ * Incomplete
+ * Uses built-in mecanum drive class, polar coordinates and PID
+ * Also has distance-based autonomous mode selection through a Smart Dashboard
+ */
 public class Robot extends IterativeRobot {
-	CANTalon fLeft = new CANTalon(2); 
-	CANTalon bLeft = new CANTalon(3); 
-	CANTalon fRight = new CANTalon(0); 
-	CANTalon bRight = new CANTalon(1); 
-	CANTalon climb1 = new CANTalon(5);
-	CANTalon climb2 = new CANTalon(6);
+	/**
+	 * WPI_TalonSRX are CANTAlons that are accepted by the MecanumDrive method.
+	 */
+	WPI_TalonSRX fLeft = new WPI_TalonSRX(2);
+	WPI_TalonSRX bLeft = new WPI_TalonSRX(3);
+	WPI_TalonSRX fRight = new WPI_TalonSRX(0);
+	WPI_TalonSRX bRight = new WPI_TalonSRX(1);
 
+	/**
+	 * Initialization for other misc variables.
+	 * SmartDashboard and SendableChooser are both used to allow the changing of variables without reuploading code.
+	 * The doubles initialized here are set from the controller input, and control the movement of the robot.
+	 * MecanumDrive takes in the CANTalons, and later the magnitude, angle and rotation desired. It tells the motors what to do to achieve desired mag, angle and rotation.
+	 * XBoxController is the controller. It accepts the index of the USB port, and can give the status of joysticks and buttons. 
+	 *    Each stick and button is indexed, and indices can be view in the Driver Station under the 4th tab when the controller is plugged in.
+	 */
 	SmartDashboard dash = new SmartDashboard();
 	SendableChooser<Integer> autoChoose = new SendableChooser<>();
-	//DigitalInput lim = new DigitalInput(0);
-	Timer timer = new Timer();
-	//CameraServer cam;
-	double x, y, mag, theta, rotation, climbVal = 0.0;
-	boolean isShooting = false;
-	RobotDrive myRobot = new RobotDrive(fLeft, bLeft, fRight, bRight);
+	double x, y, mag, theta, rotation;
+	MecanumDrive myRobot = new MecanumDrive(fLeft, bLeft, fRight, bRight);
 	XboxController controller = new XboxController(0);
-
+	
+	/**
+	 * Constants that are used so setpoint units can be easily converted to feet or wheel rotations (see below)
+	 * Constants are found by using the ratio between setpoint values and pulses, and then pulses and wheel circumference
+	 */
+	final double SETPOINT_TO_FEET = 36. / Math.PI;
+	final double SETPOINT_TO_ROTATIONS = 18;
+	
+	/**
+	 * Declaring encoders and PID control modules. 
+	 * Encoders take ports, inverted or not, and the encoding type, which is the ratio between cycles and pulses per revolution (1x, 2x, or 4x)
+	 * PID Controllers take P, I, and D respectively (must be tuned by trial and error), the input device (encoders), and output device (talons)
+	 */
+	double P, I, D, setpoint;
+	
+	Encoder fLeftEnc = new Encoder(0, 1, true, CounterBase.EncodingType.k4X);
+	Encoder bLeftEnc = new Encoder(2, 3, true, CounterBase.EncodingType.k4X);
+	Encoder fRightEnc = new Encoder(4, 5, false, CounterBase.EncodingType.k4X);
+	Encoder bRightEnc = new Encoder(6, 7, false, CounterBase.EncodingType.k4X);
+	
+	PIDController fLeftPID, bLeftPID, fRightPID, bRightPID; 
+	
+	/**
+	 * Robot Initialization- Runs when the robot is started
+	 */
 	@Override
 	public void robotInit() {
-		fLeft.enable();
-		bLeft.enable();
-		fRight.enable();
-		bRight.enable();
-		fLeft.setInverted(false);
-		bLeft.setInverted(true);
-		fRight.setInverted(false);
-		bRight.setInverted(true);
-		//cam = CameraServer.getInstance();
-		//cam.startAutomaticCapture(0);
-
-		autoChoose.addDefault("Center Gear Place", 0);
-		autoChoose.addObject("Side Baseline", 1);
-		autoChoose.addObject("Left Gear Place", 2);
-		autoChoose.addObject("Right Gear Place", 3);
-		SmartDashboard.putData("Auto Select", autoChoose);
-		//BASELINE DASH VARS
-		SmartDashboard.putNumber("Baseline Speed  ", .75);
-		SmartDashboard.putNumber("Baseline Time  ", 1);
-		//LEFT GEAR DASH VARS
-		SmartDashboard.putNumber("Left Gear Initial Speed ", .2);
-		SmartDashboard.putNumber("Left Gear Initial Time  ", 3.1);
-		SmartDashboard.putNumber("Left Gear Rotation Speed ", .3);
-		SmartDashboard.putNumber("Left Gear Rotation Time  ", .85);
-		SmartDashboard.putNumber("Left Gear Final Speed  ", .2);
-		SmartDashboard.putNumber("Left Gear Final Time  ", 1.7);
-		//RIGHT GEAR DASH VARS
-		SmartDashboard.putNumber("Right Gear Initial Speed ", .2);
-		SmartDashboard.putNumber("Right Gear Initial Time  ", 3.1);
-		SmartDashboard.putNumber("Right Gear Rotation Speed ", .3);
-		SmartDashboard.putNumber("Right Gear Rotation Time  ", .85);
-		SmartDashboard.putNumber("Right Gear Final Speed  ", .2);
-		SmartDashboard.putNumber("Right Gear Final Time  ", 1.7);
-		//CENTER GEAR DASH VARS
-		SmartDashboard.putNumber("Center Gear Speed  ", .2);
-		SmartDashboard.putNumber("Center Gear Time  ", 3.6);
+		/**
+		 * Encoders are set based on wheel diameter and cycles per revolution value so that pulses are converted to inches.
+		 */
+		fLeftEnc.setDistancePerPulse(6 * Math.PI / 360);
+		bLeftEnc.setDistancePerPulse(6 * Math.PI / 360);
+		fRightEnc.setDistancePerPulse(6 * Math.PI / 360);
+		bRightEnc.setDistancePerPulse(6 * Math.PI / 360);
+		
+		/**
+		 * Adds PID variables to the SmartDashboard
+		 */
+		SmartDashboard.putNumber("P: ", 0.05);
+		SmartDashboard.putNumber("I: ", 0.00);
+		SmartDashboard.putNumber("D: ", 0.00);
+		SmartDashboard.putNumber("Setpoint (ft): ", 1.00);
+		SmartDashboard.setPersistent("P: ");
+		SmartDashboard.setPersistent("I: ");
+		SmartDashboard.setPersistent("D: ");
+		SmartDashboard.setPersistent("Setpoint (ft): ");
+		SmartDashboard.putNumber("fLeft Encoder: ", 0);
+		SmartDashboard.putNumber("bLeft Encoder: ", 0);
+		SmartDashboard.putNumber("fRight Encoder: ", 0);
+		SmartDashboard.putNumber("bRight Encoder: ", 0);
+		
+		P = SmartDashboard.getNumber("P: ", 0);
+		I = SmartDashboard.getNumber("I: ", 0);
+		D = SmartDashboard.getNumber("D: ", 0);
+		setpoint = SmartDashboard.getNumber("Setpoint (ft): ", 0);
+		
+		fLeftPID = new PIDController(P, I, D, fLeftEnc, fLeft);
+		bLeftPID = new PIDController(P, I, D, bLeftEnc, bLeft);
+		fRightPID = new PIDController(P, I, D, fRightEnc, fRight);
+		bRightPID = new PIDController(.05, I, D, bRightEnc, bRight);
+		
+		fLeftPID.enable();
+		bLeftPID.enable();
+		fRightPID.enable();
+		bRightPID.enable();
+	}
+	
+	/**
+	 * Runs repeatedly while the robot is running.
+	 */
+	@Override
+	public void robotPeriodic() {
+		
 	}
 
+	/**
+	 * Autonomous Initialization- Runs when auto starts
+	 */
 	@Override
 	public void autonomousInit() {
-		timer.start();
-		autoChoose.getSelected();
+		/**
+		 * Encoders are reset so they start at 0 when the match begins.
+		 * Some motors run in reverse when given positive setpoints. Those are inverted for autonomous.
+		 */
+		fLeftEnc.reset();
+		bLeftEnc.reset();
+		fRightEnc.reset();
+		bRightEnc.reset();
+		
+		fRight.setInverted(true);
+		bRight.setInverted(true);
+		
+		//fLeftPID.setSetpoint(setpoint * SETPOINT_TO_FEET);
+		//bLeftPID.setSetpoint(setpoint * SETPOINT_TO_FEET);
+		//fRightPID.setSetpoint(setpoint * SETPOINT_TO_FEET);
+		bRightPID.setSetpoint(1 * SETPOINT_TO_ROTATIONS);
 	}
-
+	
+	/**
+	 * Runs repeatedly during autonomous. Used to describe movement during auto.
+	 */
 	@Override
 	public void autonomousPeriodic() {
-		//BASELINE
-		double baselineSpeed = SmartDashboard.getNumber("Baseline Speed  ");
-		double baselineTime = SmartDashboard.getNumber("Baseline Time  ");
-		//LEFT GEAR
-		double leftGearSpeed1 = SmartDashboard.getNumber("Left Gear Initial Speed ");
-		double leftGearTime1 = SmartDashboard.getNumber("Left Gear Initial Time  ");
-		double leftGearRotateSpeed = SmartDashboard.getNumber("Left Gear Rotation Speed ");
-		double leftGearRotateTime = SmartDashboard.getNumber("Left Gear Rotation Time  ");
-		double leftGearSpeed2 = SmartDashboard.getNumber("Left Gear Final Speed  ");
-		double leftGearTime2 = SmartDashboard.getNumber("Left Gear Final Time  ");
-		//RIGHT GEAR
-		double rightGearSpeed1 = SmartDashboard.getNumber("Right Gear Initial Speed ");
-		double rightGearTime1 = SmartDashboard.getNumber("Right Gear Initial Time  ");
-		double rightGearRotateSpeed = SmartDashboard.getNumber("Right Gear Rotation Speed ");
-		double rightGearRotateTime = SmartDashboard.getNumber("Right Gear Rotation Time  ");
-		double rightGearSpeed2 = SmartDashboard.getNumber("Right Gear Final Speed  ");
-		double rightGearTime2 = SmartDashboard.getNumber("Right Gear Final Time  ");
-		//CENTER GEAR
-		double centerGearSpeed = SmartDashboard.getNumber("Center Gear Speed  ");
-		double centerGearTime = SmartDashboard.getNumber("Center Gear Time  ");
-		//CHOOSE AUTO MODE
-		int n = autoChoose.getSelected();
-		//SIDE BASELINE
-		if(n == 1) {
-			if(timer.get() <= baselineTime)
-				myRobot.mecanumDrive_Polar(baselineSpeed, 87, 0);
-			else
-				myRobot.mecanumDrive_Polar(0, 0, 0);
-		}
-		//LEFT GEAR PLACE
-		else if(n == 2) {
-			if(timer.get() <= leftGearTime1){
-				myRobot.mecanumDrive_Polar(leftGearSpeed1, 87, 0);
-			}else if(timer.get() <= leftGearTime1 + leftGearRotateTime){ 
-				fLeft.setInverted(true);
-				bRight.setInverted(false);
-				myRobot.mecanumDrive_Polar(0, 0, -leftGearRotateSpeed);
-			}else if(timer.get() <= leftGearTime1 + leftGearRotateTime + leftGearTime2){
-				fLeft.setInverted(false);
-				bRight.setInverted(true);
-				myRobot.mecanumDrive_Polar(leftGearSpeed2, 87, 0);
-			}else{
-				myRobot.mecanumDrive_Polar(0, 0, 0);
-			}
-		}
-		//RIGHT GEAR PLACE
-		else if(n == 3) {
-			if(timer.get() <= rightGearTime1){
-				myRobot.mecanumDrive_Polar(rightGearSpeed1, 87, 0);
-			}else if(timer.get() <= rightGearTime1 + rightGearRotateTime){ 
-				fLeft.setInverted(true);
-				bRight.setInverted(false);
-				myRobot.mecanumDrive_Polar(0, 0, rightGearRotateSpeed);
-			}else if(timer.get() <= rightGearTime1 + rightGearRotateTime + rightGearTime2){
-				fLeft.setInverted(false);
-				bRight.setInverted(true);
-				myRobot.mecanumDrive_Polar(rightGearSpeed2, 87, 0);
-			}else{
-				myRobot.mecanumDrive_Polar(0, 0, 0);
-			}
-		}
-		//CENTER GEAR PLACE
-		else if(n == 0) {
-			if(timer.get() <= centerGearTime){
-				myRobot.mecanumDrive_Polar(centerGearSpeed, 87, 0);
-			}else{        
-				myRobot.mecanumDrive_Polar(0, 0, 0);
-			}
-		}
-
+		SmartDashboard.putNumber("fLeft Encoder: ", fLeftEnc.get());
+		SmartDashboard.putNumber("bLeft Encoder: ", bLeftEnc.get());
+		SmartDashboard.putNumber("fRight Encoder: ", fRightEnc.get());
+		SmartDashboard.putNumber("bRight Encoder: ", bRightEnc.get());
 	}
-
+	
+	/**
+	 * Teleop Initialization- Runs when driver controlled period starts
+	 */
+	@Override
+	public void teleopInit() {
+		/**
+		 * PID is disabled so it will not interfere with driver control.
+		 * Motors that had to be inverted for autonomous are un-inverted.
+		 */
+		fLeftPID.disable();
+		bLeftPID.disable();
+		fRightPID.disable();
+		bRightPID.disable();
+		fRight.setInverted(false);
+		bRight.setInverted(false);
+	}
+	/**
+	 * Teleop Periodic- Driver controls the robot
+	 */
 	@Override
 	public void teleopPeriodic() {
 		while(isEnabled() && isOperatorControl()){
+			/**
+			 * Takes controller input and calculates magnitude as movement. 
+			 * Has dead zone because axes are not at exactly 0 when not touched.
+			 */
 			x = controller.getRawAxis(0);
 			y = -controller.getRawAxis(1);
 			if(Math.sqrt((x * x) + (y * y)) > 0.25)
 				mag = Math.sqrt((x * x) + (y * y));
 			else
 				mag = 0;
+			
+			/**
+			 * Rotation is taken from the right stick. It has a deadzone for the same reason.
+			 */
 			if(Math.abs(controller.getRawAxis(4)) > 0.25)
-				rotation = -controller.getRawAxis(4);
+				rotation = controller.getRawAxis(4);
 			else
 				rotation = 0;
-			if(x < 0){
-				if(y > 0)
-					theta = 180 - Math.abs(Math.atan(y/x) * 180 / Math.PI);
+				
+			/**
+			 * The angle at which the robot should drive is determined here using basic trig. 
+			 * Note that radians must be converted to degrees for use with the mecanumdrive class.
+			 */
+			if(y < 0){
+				if(x > 0)
+					theta = 180 - Math.abs(Math.atan(x/y) * 180 / Math.PI);
 				else
-					theta = 180 + Math.atan(y/x) * 180 / Math.PI;
+					theta = 180 + Math.atan(x/y) * 180 / Math.PI;
 			}else{
-				if(y > 0)
-					theta = Math.atan(y/x) * 180 / Math.PI;
+				if(x > 0)
+					theta = Math.atan(x/y) * 180 / Math.PI;
 				else
-					theta = Math.atan(y/x) * 180 / Math.PI + 360;
+					theta = Math.atan(x/y) * 180 / Math.PI + 360;
 			}
+			
+			/**
+			 * Locks drive to cardinal directions when left trigger is held down. Used for precise movement.
+			 */
 			if(controller.getTriggerAxis(Hand.kLeft) > .05){
 				if(theta > -45 && theta <= 45)
 					theta = 0;
@@ -179,44 +230,46 @@ public class Robot extends IterativeRobot {
 				else
 					theta = 270;
 			}
-			if(Math.abs(rotation) > 0.25){
-				mag = 0;
-				theta = 0;
-				fLeft.setInverted(true);
-				bRight.setInverted(false);
-			}else{
-				fLeft.setInverted(false);
-				bRight.setInverted(true);
-			}
+			
+			/**
+			 * Slows drive to 40% and rotation to 30% when left trigger is held down. Also for precise movement.
+			 */
 			if(controller.getTriggerAxis(Hand.kLeft) > 0.5)
-				myRobot.mecanumDrive_Polar(mag * 0.4, theta, rotation * 0.3);
+				myRobot.drivePolar(mag * 0.4, theta, rotation * 0.3);
 			else
-				myRobot.mecanumDrive_Polar(mag , theta, rotation * 0.7);
-
-			//CLIMBER BLOCK
-			if(/*lim.get() && */controller.getTriggerAxis(Hand.kRight) > 0.2)
-				climbVal = controller.getTriggerAxis(Hand.kRight);
-			else
-				climbVal = 0;
-			if(/*lim.get() && */climbVal > 0.2){
-				climb1.set(climbVal);
-				climb2.set(climbVal);
-			}else{
-				climb1.set(0);
-				climb2.set(0);
-			}
-			if(controller.getTriggerAxis(Hand.kRight) > 0.2 /*&& climb1.getOutputCurrent() > 5*/){
-				controller.setRumble(RumbleType.kLeftRumble, 1);
-				controller.setRumble(RumbleType.kRightRumble, 1);
-			}else{
-				controller.setRumble(RumbleType.kLeftRumble, 0);
-				controller.setRumble(RumbleType.kRightRumble, 0);
-			}
+				myRobot.drivePolar(mag , theta, rotation);
 		}
 	}
-
+	
+	/**
+	 * Test Initialization- Runs when test mode is started.
+	 */
+	@Override
+	public void testInit() {
+		
+	}
+	
+	/**
+	 * Used to test various robot functionality. PID can be tuned here using the SmartDashboard.
+	 */
 	@Override
 	public void testPeriodic() {
-		bRight.set(.5);
+		
+	}
+	
+	/**
+	 * Disabled Initialization- Runs when the robot is first disabled.
+	 */
+	@Override
+	public void disabledInit() {
+		
+	}
+	
+	/**
+	 * Runs repeatedly when the robot is disabled.
+	 */
+	@Override
+	public void disabledPeriodic() {
+		
 	}
 }
