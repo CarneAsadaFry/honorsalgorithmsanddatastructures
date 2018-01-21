@@ -1,0 +1,277 @@
+//Nathan Tausik
+//The Buckley School
+//Senior-3
+import java.util.*;
+public class ACSL2tausik {
+
+	public static void main(String[] args) {
+		for(int a_0 = 1; a_0 <= 5; a_0++){
+			System.out.print(a_0 + ". ");
+			Scanner sc = new Scanner(System.in);
+			String s = sc.nextLine();
+			System.out.print(a_0 + ". ");
+			int parenCount = 0, curlyCount = 0, bracketCount = 0;
+
+			for(int i = 0; i < s.length(); i++) {
+				if(s.charAt(i) == '(')
+					parenCount++;
+				else if(s.charAt(i) == ')')
+					parenCount--;
+				else if(s.charAt(i) == '{')
+					curlyCount++;
+				else if(s.charAt(i) == '}')
+					curlyCount--;
+				else if(s.charAt(i) == '[')
+					bracketCount++;
+				else if(s.charAt(i) == ']')
+					bracketCount--;
+			}
+
+			ArrayList<Integer> ans = new ArrayList<>();
+			boolean foundStart = false, bufferNum = false;
+
+			if(parenCount < 0){
+				boolean inCurly = false, inBracket = false;
+				for(int i = s.length() - 1; i >= 0; i--){
+					if(s.charAt(i) == ')')
+						foundStart = true;
+					if(foundStart){
+						if(s.charAt(i) == '}')
+							inCurly = true;
+						if(s.charAt(i) == '{'){
+							if(inCurly){
+								inCurly = false;
+								if(!inBracket)
+									ans.add(0, i + 1);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(s.charAt(i) == ']')
+							inBracket = true;
+						if(s.charAt(i) == '['){
+							if(inBracket){
+								inBracket = false;
+								if(!inCurly)
+									ans.add(0, i + 1);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(!(inCurly || inBracket)){
+							if(Character.isDigit(s.charAt(i)) && (i == 0 || !Character.isDigit(s.charAt(i - 1)))){
+								if(bufferNum)
+									ans.add(0, i + 1);
+								else
+									bufferNum = true;
+							}
+						}
+					}
+				}
+			}else if(parenCount > 0){
+				boolean inCurly = false, inBracket = false;
+				for(int i = 0; i < s.length(); i++){
+					if(s.charAt(i) == '(')
+						foundStart = true;
+					if(foundStart){
+						if(s.charAt(i) == '{')
+							inCurly = true;
+						if(s.charAt(i) == '}'){
+							if(inCurly){
+								inCurly = false;
+								if(!inBracket)
+									ans.add(i + 2);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(s.charAt(i) == '[')
+							inBracket = true;
+						if(s.charAt(i) == ']'){
+							if(inBracket){
+								inBracket = false;
+								if(!inCurly)
+									ans.add(i + 2);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(!(inCurly || inBracket)){
+							if(Character.isDigit(s.charAt(i)) && (i == s.length() - 1 || !Character.isDigit(s.charAt(i + 1)))){
+								if(bufferNum)
+									ans.add(i + 2);
+								else
+									bufferNum = true;
+							}
+						}
+					}
+				}
+			}else if(curlyCount < 0){
+				boolean inParen = false, inBracket = false;
+				for(int i = s.length() - 1; i >= 0; i--){
+					if(s.charAt(i) == '}')
+						foundStart = true;
+					if(foundStart){
+						if(s.charAt(i) == ')')
+							inParen = true;
+						if(s.charAt(i) == '('){
+							if(inParen){
+								inParen = false;
+								if(!inBracket)
+									ans.add(0, i + 1);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(s.charAt(i) == ']')
+							inBracket = true;
+						if(s.charAt(i) == '['){
+							if(inBracket){
+								inBracket = false;
+								if(!inParen)
+									ans.add(0, i + 1);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(!(inParen || inBracket)){
+							if(Character.isDigit(s.charAt(i)) && (i == 0 || !Character.isDigit(s.charAt(i - 1)))){
+								if(bufferNum)
+									ans.add(0, i + 1);
+								else
+									bufferNum = true;
+							}
+						}
+					}
+				}
+			}else if(curlyCount > 0){
+				boolean inParen = false, inBracket = false;
+				for(int i = 0; i < s.length(); i++){
+					if(s.charAt(i) == '{')
+						foundStart = true;
+					if(foundStart){
+						if(s.charAt(i) == '(')
+							inParen = true;
+						if(s.charAt(i) == ')'){
+							if(inParen){
+								inParen = false;
+								if(!inBracket)
+									ans.add(i + 2);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(s.charAt(i) == '[')
+							inBracket = true;
+						if(s.charAt(i) == ']'){
+							if(inBracket){
+								inBracket = false;
+								if(!inParen)
+									ans.add(i + 2);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(!(inParen || inBracket)){
+							if(Character.isDigit(s.charAt(i)) && (i == s.length() - 1 || !Character.isDigit(s.charAt(i + 1)))){
+								if(bufferNum)
+									ans.add(i + 2);
+								else
+									bufferNum = true;
+							}
+						}
+					}
+				}
+			}else if(bracketCount < 0){
+				boolean inCurly = false, inParen = false;
+				for(int i = s.length() - 1; i >= 0; i--){
+					if(s.charAt(i) == ']')
+						foundStart = true;
+					if(foundStart){
+						if(s.charAt(i) == '}')
+							inCurly = true;
+						if(s.charAt(i) == '{'){
+							if(inCurly){
+								inCurly = false;
+								if(!inParen)
+									ans.add(0, i + 1);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(s.charAt(i) == ')')
+							inParen = true;
+						if(s.charAt(i) == '('){
+							if(inParen){
+								inParen = false;
+								if(!inCurly)
+									ans.add(0, i + 1);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(!(inCurly || inParen)){
+							if(Character.isDigit(s.charAt(i)) && (i == 0 || !Character.isDigit(s.charAt(i - 1)))){
+								if(bufferNum)
+									ans.add(0, i + 1);
+								else
+									bufferNum = true;
+							}
+						}
+					}
+				}
+			}else if(bracketCount > 0){
+				boolean inCurly = false, inParen = false;
+				for(int i = 0; i < s.length(); i++){
+					if(s.charAt(i) == '[')
+						foundStart = true;
+					if(foundStart){
+						if(s.charAt(i) == '{')
+							inCurly = true;
+						if(s.charAt(i) == '}'){
+							if(inCurly){
+								inCurly = false;
+								if(!inParen)
+									ans.add(i + 2);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(s.charAt(i) == '(')
+							inParen = true;
+						if(s.charAt(i) == ')'){
+							if(inParen){
+								inParen = false;
+								if(!inCurly)
+									ans.add(i + 2);
+								bufferNum = true;
+							}else
+								break;
+						}
+						if(!(inCurly || inParen)){
+							if(Character.isDigit(s.charAt(i)) && (i == s.length() - 1 || !Character.isDigit(s.charAt(i + 1)))){
+								if(bufferNum)
+									ans.add(i + 2);
+								else
+									bufferNum = true;
+							}
+						}
+					}
+				}
+			}
+
+			for(int i : ans)
+				System.out.print(i + " ");
+			System.out.println();
+		}
+
+
+
+	}
+
+}
+//{[(2+3)*6/10}
+//{[7*25/5+14)*51]+6}
+//{60+[15*(520-505)]/5-23
+//{32*510+(8/4)*2+43]/24}
+//{[(24+900/300*64]}
