@@ -68,7 +68,8 @@ public class Main extends Application {
 	int[] W = {8, 4, 2, 1};
 	void fill(Cell start, Cell end) {
 		Queue<Cell> q = new LinkedList<>();
-		q.add(start);
+		sol[start.x][start.y] = 0;
+		q.offer(start);
 		
 		while(!q.isEmpty()) {
 			Cell c = q.poll();
@@ -76,7 +77,11 @@ public class Main extends Application {
 				break;
 			}
 			for(int i = 0; i < 4; i++) {
-				//if((W[i] & ))
+				int nx = c.x + X[i], ny = c.y + Y[i];
+				if((W[i] & maze[c.x][c.y]) != W[i] && sol[nx][ny] == -1) {
+					sol[nx][ny] = sol[c.x][c.y] + 1;
+					q.offer(new Cell(nx, ny));
+				}
 			}
 		}
 	}
