@@ -1,0 +1,96 @@
+package application;
+
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import java.io.*;
+import java.util.*;
+
+
+public class Main extends Application {
+	int N, M, size = 100;
+	int[][] maze;
+	int[][] sol;
+	StackPane[][] pane;
+	String borderColor = "-fx-border-color: black;";
+	String fillColor = "-fx-background-color: red;";
+	String borderWidth = "-fx-border-width: ";
+	
+	@Override
+	public void start(Stage primaryStage) throws IOException {
+		BufferedReader br = new BufferedReader(new FileReader("matrix.in"));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		GridPane root = new GridPane();
+		
+		N = Integer.parseInt(st.nextToken());
+		M = Integer.parseInt(st.nextToken());
+		maze = new int[N][M];
+		sol = new int[N][M];
+		pane = new StackPane[N][M];
+		
+		for(int i = 0; i < N; i++) {
+			st = new StringTokenizer(br.readLine());
+			for(int j = 0; j < M; j++) {
+				maze[i][j] = Integer.parseInt(st.nextToken());
+				sol[i][j] = -1;
+				pane[i][j] = new StackPane();
+				pane[i][j].setPrefSize(size, size);
+				String adding = "";
+				adding += ((8 & maze[i][j]) == 8) ? ".5 " : "0 ";
+				adding += ((4 & maze[i][j]) == 4) ? ".5 " : "0 ";
+				adding += ((2 & maze[i][j]) == 2) ? ".5 " : "0 ";
+				adding += ((1 & maze[i][j]) == 1) ? ".5 ;" : "0;";
+				pane[i][j].setStyle(borderColor + borderWidth + adding);
+				root.add(pane[i][j], j, i);
+			}
+		}
+		
+		
+		Scene scene = new Scene(root);
+		primaryStage.setTitle("LILLIAN LINDEN IS A COAST WIZARD");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+		primaryStage.setOnCloseRequest(e -> {
+			System.exit(0);
+			Platform.exit();
+		});
+		
+		new Thread(() -> {
+			fill(new Cell(0, 0), new Cell(N - 1, M - 1));
+		}).start();
+	}
+	
+	int[] X = {-1, 0, 1, 0};
+	int[] Y = {0, 1, 0, -1};
+	int[] W = {8, 4, 2, 1};
+	void fill(Cell start, Cell end) {
+		Queue<Cell> q = new LinkedList<>();
+		q.add(start);
+		
+		while(!q.isEmpty()) {
+			Cell c = q.poll();
+			if(c.x == end.x && c.y == end.y) {
+				break;
+			}
+			for(int i = 0; i < 4; i++) {
+				//if((W[i] & ))
+			}
+		}
+	}
+
+	public static void main(String[] args) {
+		launch(args);
+	}
+	
+	static class Cell {
+		int x, y;
+		
+		Cell(int x, int y){
+			this.x = x;
+			this.y = y;
+		}
+	}
+}
