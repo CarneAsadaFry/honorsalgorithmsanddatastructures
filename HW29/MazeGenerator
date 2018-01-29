@@ -1,0 +1,86 @@
+package application;
+import java.util.*;
+import java.io.*;
+
+class MazeGenerator {
+	
+	private static final int size = 80;
+
+	public static void main(String[] args) throws IOException {
+		PrintWriter out = new PrintWriter(new FileWriter(new File("matrix.in")));
+		
+		int[][] adjMatrix = new int[size][size];
+		int[][] maze = new int[size][size];
+		for(int i = 0; i < size; i++){
+			for(int j = 0; j < size; j++){
+				adjMatrix[i][j] = (int)(Math.random() * 100);
+				maze[i][j] = 15;
+			}
+		}
+
+		PriorityQueue<Node> pq = new PriorityQueue<>();
+		boolean[][] connected = new boolean[size][size];
+		pq.offer(new Node(size - 1, 0, 0, -1));
+		
+		int[] X = {-1, 1, 0, 0};
+		int[] Y = {0, 0, -1, 1};
+		while(!pq.isEmpty()){
+			Node node = pq.poll();
+			int x = node.x;
+			int y = node.y;
+			int dir = node.dir;
+			
+			if(connected[x][y])
+				continue;
+			
+			connected[x][y] = true;
+			
+			for(int i = 0; i < 4; i++){
+				int newX = x + X[i];
+				int newY = y + Y[i];
+				if(newX >= 0 && newY >= 0 && newX < size && newY < size && !connected[newX][newY]){
+					pq.offer(new Node(newX, newY, adjMatrix[newX][newY], i));
+				}
+			}
+			switch(dir) {
+			case 0: maze[x][y] -= 2; maze[x + 1][y] -= 8; break;
+			case 1: maze[x][y] -= 8; maze[x - 1][y] -= 2; break;
+			case 2: maze[x][y] -= 4; maze[x][y + 1] -= 1; break;
+			case 3: maze[x][y] -= 1; maze[x][y - 1] -= 4; break;
+			default: break;
+			}
+		}
+		
+		out.println(size + " " + size);
+		
+		for(int[] a_i : maze) {
+			for(int i : a_i) {
+				out.print(i + " ");
+			}
+			out.println();
+		}
+		
+		out.close();
+	}
+
+	static class Node implements Comparable<Node>{
+		int x;
+		int y;
+		int distance;
+		int dir;
+
+		public Node(int x, int y, int dist, int dir){
+			this.x = x;
+			this.y = y;
+			distance = dist;
+			this.dir = dir;
+		}
+
+		@Override
+		public int compareTo(Node other) {
+			return distance - other.distance;
+		}
+
+
+	}
+}
