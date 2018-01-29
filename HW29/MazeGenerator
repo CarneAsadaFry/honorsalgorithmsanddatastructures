@@ -43,10 +43,10 @@ class MazeGenerator {
 				}
 			}
 			switch(dir) {
-			case 0: maze[x][y] -= 2; maze[x + 1][y] -= 8; break;
-			case 1: maze[x][y] -= 8; maze[x - 1][y] -= 2; break;
-			case 2: maze[x][y] -= 4; maze[x][y + 1] -= 1; break;
-			case 3: maze[x][y] -= 1; maze[x][y - 1] -= 4; break;
+			case 0: maze[x][y] -= 2; maze[x + 1][y] -= 8; break; //NEW NODE IS DOWN
+			case 1: maze[x][y] -= 8; maze[x - 1][y] -= 2; break; //NEW NODE IS UP
+			case 2: maze[x][y] -= 4; maze[x][y + 1] -= 1; break; //NEW NODE IS RIGHT
+			case 3: maze[x][y] -= 1; maze[x][y - 1] -= 4; break; //NEW NODE IS LEFT
 			default: break;
 			}
 		}
