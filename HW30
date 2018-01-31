@@ -1,0 +1,103 @@
+import java.util.*;
+public class Tree<E> {
+	
+	private TreeNode<E> root;
+	
+	public int size() {
+		return size(root);
+	}
+	private int size(TreeNode<E> root) {
+		if(root == null)
+			return 0;
+		return 1 + size(root.left) + size(root.right);
+	}
+	
+	public int emptyBranches() {
+		return emptyBranches(root);
+	}
+	private int emptyBranches(TreeNode<E> root) {
+		if(root == null)
+			return 1;
+		return emptyBranches(root.left) + emptyBranches(root.right);
+	}
+	
+	public ArrayList<TreeNode<E>> getLeaves() {
+		return getLeaves(root);
+	}
+	private ArrayList<TreeNode<E>> getLeaves(TreeNode<E> root) {
+		ArrayList<TreeNode<E>> list = new ArrayList<>();
+		if(root == null)
+			return list;
+		if(root.left == null & root.right == null)
+			list.add(root);
+		list.addAll(getLeaves(root.left));
+		list.addAll(getLeaves(root.right));
+		return list;
+	}
+	
+	public int countLeftNodes() {
+		return countLeftNodes(root);
+	}
+	private int countLeftNodes(TreeNode<E> root) {
+		if(root == null)
+			return -1;
+		if(root.left != null)
+			return 1 + countLeftNodes(root.left);
+		if(root.right != null)
+			return countLeftNodes(root.right);
+		return 0;
+	}
+	
+	public static void main(String[] args) {
+		Tree<Integer> t1 = new Tree<>();
+		t1.root = new TreeNode<>(1);
+		t1.root.left = new TreeNode<>(2);
+		t1.root.right = new TreeNode<>(8);
+		System.out.println(t1.size());
+		System.out.println(t1.emptyBranches());
+		System.out.println(t1.getLeaves());
+		System.out.println(t1.countLeftNodes());
+		
+		Tree<String> t2 = new Tree<>();
+		System.out.println(t2.size());
+		System.out.println(t2.emptyBranches());
+		System.out.println(t2.getLeaves());
+		System.out.println(t2.countLeftNodes());
+		
+		Tree<Character> t3 = new Tree<>();
+		t3.root = new TreeNode<>('a');
+		t3.root.left = new TreeNode<>('b');
+		t3.root.left.left = new TreeNode<>('c');
+		t3.root.left.right = new TreeNode<>('d');
+		t3.root.left.right.right = new TreeNode<>('e');
+		System.out.println(t3.size());
+		System.out.println(t3.emptyBranches());
+		System.out.println(t3.getLeaves());
+		System.out.println(t3.countLeftNodes());
+	}
+	
+	static class TreeNode<E> {
+		E data;
+		TreeNode<E> left, right;
+		
+		TreeNode(E d) {
+			data = d;
+		}
+		
+		@Override
+		public String toString() {
+			return data + "";
+		}
+	}
+	
+	void printPreorder() {
+		printPreorder(root);
+	}
+	void printPreorder(TreeNode<E> root) {
+		if(root == null)
+			return;
+		System.out.println(root.data);
+		printPreorder(root.left);
+		printPreorder(root.right);
+	}
+}
