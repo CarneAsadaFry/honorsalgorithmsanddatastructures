@@ -1,0 +1,227 @@
+import java.util.*;
+public class BST<E extends Comparable<E>> {
+	private BSTNode<E> root;
+	private int size = 0;
+
+	public boolean contains(E data) {
+		return contains(root, data);
+	}
+	
+	private boolean contains(BSTNode<E> root, E data) {
+		if(root == null)
+			return false;
+		if(data.compareTo(root.data) == 0)
+			return true;
+		return contains((data.compareTo(root.data) < 0) ? root.left : root.right, data);
+	}
+	
+	public boolean add(E data) {
+		return add(root, data);
+//		if(root == null) {
+//			root = new BSTNode<>(data);
+//		}else {
+//			BSTNode<E> curr = root, parent = root;
+//			while(curr != null) {
+//				if (data.compareTo(curr.data) == 0)
+//					return false;
+//				parent = curr;
+//				if(data.compareTo(curr.data) < 0)
+//					curr = curr.left;
+//				else
+//					curr = curr.right;
+//			}
+//			BSTNode<E> newNode = new BSTNode<>(data);
+//			if(data.compareTo(parent.data) < 0)
+//				parent.left = newNode;
+//			else
+//				parent.right = newNode;
+//		}
+//		return true;
+	}
+	
+	private boolean add(BSTNode<E> root, E data) {
+		if(this.root == null) {
+			this.root = new BSTNode<>(data);
+		} else {
+			if(data.compareTo(root.data) == 0)
+				return false;
+			if(data.compareTo(root.data) < 0) {
+				if(root.left != null)
+					return add(root.left, data);
+				else
+					root.left = new BSTNode<>(data);
+			}else {
+				if(root.right != null)
+					return add(root.right, data);
+				else
+					root.right = new BSTNode<>(data);
+			}
+		}
+		size++;
+		return true;
+	}
+
+	public boolean remove(E data) {
+		return true;
+	}
+
+	public void preorder() {
+		preorder(root);
+		System.out.println();
+	}
+
+	private void preorder(BSTNode<E> root) {
+		if(root == null)
+			return;
+		System.out.print(root.data + " ");
+		preorder(root.left);
+		preorder(root.right);
+	}
+
+	public void postorder() {
+		postorder(root);
+		System.out.println();
+	}
+
+	private void postorder(BSTNode<E> root) {
+		if(root == null)
+			return;
+		postorder(root.left);
+		postorder(root.right);
+		System.out.print(root.data + " ");
+	}
+	
+	public void inorder() {
+		inorder(root);
+		System.out.println();
+	}
+
+	private void inorder(BSTNode<E> root) {
+		if(root == null)
+			return;
+		inorder(root.left);
+		System.out.print(root.data + " ");
+		inorder(root.right);
+	}
+	
+	public void levelOrder() {
+		Queue<BSTNode<E>> q = new LinkedList<>();
+		if(root == null)
+			return;
+		q.offer(root);
+		while(!q.isEmpty()) {
+			BSTNode temp = q.poll();
+			System.out.print(temp.data + " ");
+			if(temp.left != null)
+				q.offer(temp.left);
+			if(temp.right != null)
+				q.offer(temp.right);
+		}
+		System.out.println();
+	}
+	
+	public int getHeight() { 
+		return getHeight(root);
+	}
+	
+	private int getHeight(BSTNode<E> root) {
+		if(root == null)
+			return 0;
+		return 1 + Math.max(getHeight(root.left), getHeight(root.right));
+	}
+	
+	public boolean isBST() {
+		return isBST(root, null, null);
+	}
+	
+	private boolean isBST(BSTNode<E> root, E low, E hi) {
+		if(root == null)
+			return true;
+		if(low != null && root.data.compareTo(low) < 1)
+			return false;
+		if(hi != null && root.data.compareTo(hi) > -1)
+			return false;
+		return isBST(root.left, low, root.data) && isBST(root.right, root.data, hi);
+	}
+	
+	public boolean isBalanced() {
+		return isBalanced(root);
+	}
+	
+	private boolean isBalanced(BSTNode<E> root) {
+		if(root == null)
+			return true;
+		int lH = getHeight(root.left);
+		int rH = getHeight(root.right);
+		if(Math.abs(lH - rH) > 1)
+			return false;
+		return isBalanced(root.left) && isBalanced(root.right);
+	}
+	
+	public int getDepth(E dest) {
+		return getDepth(root, dest, 0);
+	}
+	
+	private int getDepth(BSTNode<E> root, E dest, int depth) {
+		if(root == null)
+			return -1;
+		if(dest.compareTo(root.data) == 0)
+			return depth;
+		if(dest.compareTo(root.data) < 0)
+			return getDepth(root.left, dest, depth + 1);
+		return getDepth(root.right, dest, depth + 1);
+	}
+
+	static class BSTNode<E> {
+		E data;
+		BSTNode<E> left, right;
+
+		BSTNode(E d) {
+			data = d;
+		}
+	}
+
+	public static void main(String[] args) {
+		BST<Integer> tree = new BST<>();
+		tree.add(4);
+		tree.add(6);
+		tree.add(2);
+		tree.add(8);
+		tree.preorder();
+		tree.postorder();
+		tree.inorder();
+		tree.levelOrder();
+		tree.root.left.right = new BSTNode<>(5);
+		System.out.println(tree.getHeight());
+		System.out.println(tree.isBST());
+		System.out.println(tree.getDepth(4));
+		System.out.println(tree.getDepth(6));
+		System.out.println(tree.getDepth(2));
+		System.out.println(tree.getDepth(8));
+		System.out.println(tree.getDepth(43));
+		
+		BST<Character> t2 = new BST<>();
+		char[] arrCh = {'k', 'r', 'w', 'b', 'c', 'm', 'o'};
+		for(char c: arrCh)
+			t2.add(c);
+		t2.preorder();
+		t2.postorder();
+		t2.inorder();
+		t2.levelOrder();
+		System.out.println(t2.getHeight());
+		System.out.println(t2.isBST());
+		System.out.println(t2.getDepth('m'));
+		
+		int count = 0;
+		for(int i = 0; i < 1000; i++) {
+			BST<Integer> t3 = new BST<>();
+			for(int j = 0; j < 10; j++) {
+				t3.add((int)(Math.random() * 1000000));
+			}
+			if(t3.isBalanced()) {
+				count++;
+			}
+		}
+		System.out.println(count + " / 1000 are balanced");
+	}
+}
