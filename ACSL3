@@ -1,0 +1,64 @@
+//Nathan Tausik
+//The Buckley School
+//Senior-3
+import java.util.*;
+public class ACSL3tausik {
+	
+	static void solve(int x, int y, int dir, int moves) {
+		x = (x + 8) % 8;
+		y = (y + 8) % 8;
+		if(moves == 0) {
+			System.out.println((8 - x) + " " + (y + 1));
+			return;
+		}
+		int nDir = (board[x][y] * 45 + dir) % 360;
+		switch(nDir) {
+		case 0: y++; break;
+		case 45: x++; y++; break;
+		case 90: x++; break;
+		case 135: x++; y--; break;
+		case 180: y--; break;
+		case 225: x--; y--; break;
+		case 270: x--; break;
+		case 315: x--; y++; break;
+		}
+		solve(x, y, (nDir + 180) % 360, moves - 1);
+	}
+
+	static int[][] board = new int[8][8];
+	public static void main(String[] args) {		
+		Scanner sc = new Scanner(System.in);
+		System.out.print("1. ");
+		StringTokenizer st = new StringTokenizer(sc.nextLine());
+		for(int i = 7; i >= 0; i--) {
+			String oct = Integer.toOctalString(Integer.parseInt(st.nextToken(), 16));
+			for(int j = 0; j < 8; j++) {
+				board[i][j] = Integer.parseInt(oct.charAt(j) + "");
+			}
+		}
+				
+		for(int a_0 = 0; a_0 < 5; a_0++) {
+			System.out.print((a_0 + 2) + ". ");
+			st = new StringTokenizer(sc.nextLine());
+			int x = Integer.parseInt(st.nextToken()), y = Integer.parseInt(st.nextToken());
+			char sDir = st.nextToken().charAt(0);
+			int moves = Integer.parseInt(st.nextToken());
+			
+			int dir = 0;
+			switch(sDir) {
+			case 'L': dir = 180; break;
+			case 'R': dir = 0; break;
+			case 'A': dir = 270; break;
+			case 'B': dir = 90; break;
+			}
+			System.out.print((a_0 + 1) + ". ");
+			solve(8 - x, y - 1, dir, moves);
+		}
+	}
+}
+//4F9D39 DEB456 3DA8B9 A57CA7 26A84A 2FCFA3 3AAB09 89CBF5
+//1 2 L 2
+//5 3 A 4
+//3 5 B 2
+//6 7 R 5
+//4 7 L 6
