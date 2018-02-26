@@ -1,0 +1,102 @@
+import java.util.*;
+public class Trie {
+
+	public static void main(String[] args) {
+		Trie trie = new Trie();
+		trie.add("hi");
+		trie.add("hill");
+		trie.add("dog");
+		trie.add("cater");
+		trie.add("hilly");
+		trie.add("cat");
+		
+		trie.print();
+		trie.printStartsWith("hil");
+		
+		assert !trie.contains("cate");
+		assert trie.contains("hill");
+		assert !trie.contains("do");
+		
+		trie.delete("ca");
+		trie.delete("hi");
+		assert trie.contains("cat");
+		assert !trie.contains("hi");
+		assert trie.contains("hill");
+	}
+	
+	private TrieNode root = new TrieNode();
+	
+	public void add(String s) {
+		TrieNode temp = root;
+		for(int i = 0; i < s.length(); i++) {
+			char ch = s.charAt(i);
+			if(!temp.alpha.containsKey(ch))
+				temp.alpha.put(ch, new TrieNode());
+			temp = temp.alpha.get(ch);
+		}
+		temp.isEnd = true;
+	}
+	
+	public boolean contains(String s) {
+		TrieNode temp = root;
+		for(int i = 0; i < s.length(); i++) {
+			char ch = s.charAt(i);
+			if(!temp.alpha.containsKey(ch))
+				return false;
+			temp = temp.alpha.get(ch);
+		}
+		return temp.isEnd;
+	}
+	
+	public void delete(String s) {
+		delete(s, 0, root);
+	}
+	
+	private boolean delete(String s, int ind, TrieNode curr) {
+		if(s.length() == ind) {
+			if(!curr.isEnd)
+				return false;
+			curr.isEnd = false;
+			return curr.alpha.isEmpty();
+		}
+		char ch = s.charAt(ind);
+		if(!curr.alpha.containsKey(ch))
+			return false;
+		if(delete(s, ind + 1, curr.alpha.get(ch))) {
+			curr.alpha.remove(ch);
+			return curr.alpha.isEmpty();
+		}
+		return false;
+	}
+	
+	public void print() {
+		System.out.print("[");
+		print(root, "");
+		System.out.println("]");
+	}
+	
+	private void print(TrieNode curr, String s) {
+		if(curr.isEnd)
+			System.out.print(s + ", ");
+		for(char c: curr.alpha.keySet())
+			print(curr.alpha.get(c), s + c);
+	}
+	
+	public void printStartsWith(String pref) {
+		System.out.print("[");
+		printStartsWith(pref, root, "");
+		System.out.println("]");
+	}
+	
+	private void printStartsWith(String pref, TrieNode curr, String s) {
+		if(curr.isEnd && s.length() >= pref.length() && s.subSequence(0, pref.length()).equals(pref))
+			System.out.print(s + ", ");
+		for(char c: curr.alpha.keySet())
+			printStartsWith(pref, curr.alpha.get(c), s + c);
+	}
+	
+	private class TrieNode {
+		Map<Character, TrieNode> alpha = new HashMap<>();
+		boolean isEnd;
+	}
+}
