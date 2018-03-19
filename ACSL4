@@ -1,0 +1,75 @@
+//Nate Tausik
+//The Buckley School
+//Senior-3
+import java.util.*;
+public class ACSL4tausik {
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		for(int a_0 = 1; a_0 <= 5; a_0++) {
+			System.out.print(a_0 + ". ");
+			String s = sc.nextLine();
+			BinTree bt = new BinTree();
+			for(int i = 0; i < s.length(); i++) {
+				if(Character.isAlphabetic(s.charAt(i)))
+					bt.add(Character.toUpperCase(s.charAt(i)));
+			}
+			System.out.println(a_0 + ". " + bt.letterSum());
+		}
+		sc.close();
+	}
+
+	static class BinTree {
+		TreeNode root;
+
+		void add(char c) {
+			if(root == null)
+				root = new TreeNode(c);
+			else
+				add(root, c);
+		}
+
+		void add(TreeNode curr, char c) {
+			if(curr.letter == c) {
+				curr.count++;
+			}else if(c < curr.letter) {
+				if(curr.left == null)
+					curr.left = new TreeNode(c);
+				else
+					add(curr.left, c);
+			}else {
+				if(curr.right == null)
+					curr.right = new TreeNode(c);
+				else
+					add(curr.right, c);
+			}
+		}
+		
+		int letterSum() {
+			if(root == null)
+				return 0;
+			return letterSum(root);
+		}
+		
+		int letterSum(TreeNode curr) {
+			if(curr.left != null && curr.right != null)
+				return letterSum(curr.left) + letterSum(curr.right);
+			if(curr.left != null)
+				return curr.count + letterSum(curr.left);
+			if(curr.right != null)
+				return curr.count + letterSum(curr.right);
+			return 0;
+		}
+	}
+
+	static class TreeNode {
+		char letter;
+		int count;
+		TreeNode left, right;
+
+		public TreeNode(char c) {
+			letter = c;
+			count = 1;
+		}
+	}
+}
