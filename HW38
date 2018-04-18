@@ -1,0 +1,44 @@
+import java.io.*;
+import java.util.*;
+
+public class HW38 {
+
+	public static void main(String[] args) throws IOException{
+		Scanner in = new Scanner(new File("graph.in"));
+		int n = Integer.parseInt(in.nextLine());
+		ArrayList<Integer>[] adj = new ArrayList[n];
+		
+		for(int i = 0; i < n; i++) {
+			String[] data = in.nextLine().split(" ");
+			int from = Integer.parseInt(data[0]);
+			adj[from] = new ArrayList<>();
+			for(int j = 1; j < data.length; j++) {
+				adj[from].add(Integer.parseInt(data[j]));
+			}
+		}
+		
+		System.out.println(bfs(0, adj));
+		System.out.println(bfs(3, adj));
+	}
+	
+	public static ArrayList<Integer> bfs(int from, ArrayList<Integer>[] adj){
+		ArrayList<Integer> path = new ArrayList<>();
+		Queue<Integer> q = new LinkedList<>();
+		Set<Integer> vis = new HashSet<>();
+		q.offer(from);
+		vis.add(from);
+		
+		while(!q.isEmpty()) {
+			int curr = q.poll();
+			path.add(curr);
+			for(int n: adj[curr]) {
+				if(!vis.contains(n)) {
+					q.offer(n);
+					vis.add(n);
+				}
+			}
+		}
+		return path;
+	}
+
+}
